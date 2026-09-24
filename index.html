@@ -3188,22 +3188,27 @@
             const container = element.parentElement;
             let cards = Array.from(container.querySelectorAll('.stack-card')).filter(c => c.style.display !== 'none');
             if (cards.length <= 1) return;
-            cards.sort((a, b) => (parseInt(a.style.zIndex) || 0) - (parseInt(b.style.zIndex) || 0));
-            const maxZIndex = parseInt(cards[cards.length - 1].style.zIndex) || 0;
-            const clickedZIndex = parseInt(element.style.zIndex) || 0;
-            if (clickedZIndex === maxZIndex) {
-                const topCard = cards.pop();
-                cards.unshift(topCard);
+            
+            // Sort Descending by zIndex -> Front card is index 0
+            cards.sort((a, b) => (parseInt(b.style.zIndex) || 0) - (parseInt(a.style.zIndex) || 0));
+            
+            if (cards[0] === element) {
+                // Clicked the front card, send it to the back
+                const topCard = cards.shift();
+                cards.push(topCard);
             } else {
+                // Clicked a back card, bring it to the front
                 cards = cards.filter(c => c !== element);
-                cards.push(element);
+                cards.unshift(element);
             }
-            applyStackStyles(cards, container);
+            
+            applyStackStyles(cards);
         }
 
         function filterTA() {
             const taName = document.getElementById('ta-filter').value;
             const allCards = document.querySelectorAll('.stack-card');
+            
             allCards.forEach(card => {
                 if (taName === "" || card.innerText.includes(taName)) {
                     card.style.display = 'block';
@@ -3213,24 +3218,30 @@
                     card.classList.add('hidden-by-filter');
                 }
             });
+            
             document.querySelectorAll('td .relative').forEach(container => {
-                const visibleCards = Array.from(container.querySelectorAll('.stack-card')).filter(c => c.style.display !== 'none');
+                // querySelectorAll returns elements in DOM order (Chronological order: 9:00 then 10:00)
+                let visibleCards = Array.from(container.querySelectorAll('.stack-card')).filter(c => c.style.display !== 'none');
+                
                 if (visibleCards.length === 0) {
                     container.style.minHeight = '50px';
                 } else {
                     container.style.minHeight = (170 + (visibleCards.length - 1) * 14) + 'px';
                 }
-                applyStackStyles(visibleCards, container);
+                
+                // Applying styles directly to the DOM order makes the first element (e.g. 09:00) the front-most card.
+                applyStackStyles(visibleCards);
             });
         }
 
-        function applyStackStyles(visibleCards, container) {
+        function applyStackStyles(visibleCards) {
+            const len = visibleCards.length;
             visibleCards.forEach((card, index) => {
-                const reverseIndex = visibleCards.length - 1 - index;
-                card.style.zIndex = index * 10;
-                card.style.top = (reverseIndex * 14) + 'px';
-                card.style.transform = `scale(${1 - (reverseIndex * 0.03)})`;
-                card.style.filter = `brightness(${1 - (reverseIndex * 0.06)})`;
+                // Index 0 gets highest z-index (front), Index 1 gets lower z-index (back)
+                card.style.zIndex = (len - 1 - index) * 10;
+                card.style.top = (index * 14) + 'px';
+                card.style.transform = `scale(${1 - (index * 0.03)})`;
+                card.style.filter = `brightness(${1 - (index * 0.06)})`;
             });
         }
     </script>
