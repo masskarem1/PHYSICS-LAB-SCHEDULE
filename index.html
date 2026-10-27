@@ -17,7 +17,7 @@
             @page { size: landscape; margin: 5mm; }
             body { background: #fff !important; padding: 0 !important; margin: 0 !important; }
             #controls { display: none !important; }
-            .max-w-\[95\%\] { max-width: 100% !important; width: 100% !important; margin: 0 !important; }
+            .max-w-[95\%] { max-width: 100% !important; width: 100% !important; margin: 0 !important; }
             .shadow-xl, .shadow-md, .shadow-lg { box-shadow: none !important; border: 1px solid #cbd5e1 !important; }
             .overflow-auto, .table-container { overflow: visible !important; max-height: none !important; }
             .sticky { position: static !important; box-shadow: none !important; }
@@ -32,15 +32,36 @@
 </head>
 <body class="text-slate-800 antialiased p-4 md:p-8">
     <div class="max-w-[95%] mx-auto">
-        <div class="mb-6 flex flex-col lg:flex-row justify-between items-center gap-4">
-            <div class="text-center lg:text-right">
-                <h1 class="text-3xl font-bold text-slate-900 mb-2">الجدول المعملي المجمع</h1>
-                <p class="text-slate-500 font-medium">الفصل الدراسي الخريفي 2026-2027</p>
+        <!-- Header & Live Statistics Bar -->
+        <div class="mb-6 flex flex-col xl:flex-row justify-between items-center gap-4">
+            <div class="text-center xl:text-right">
+                <h1 class="text-3xl font-bold text-slate-900 mb-1">الجدول المعملي المجمع</h1>
+                <p class="text-slate-500 font-medium text-sm">الفصل الدراسي الخريفي 2026-2027</p>
             </div>
-            <div id="controls" class="flex flex-wrap gap-3 items-center justify-center">
-                <!-- Course Filter Dropdown (NEW) -->
-                <select id="course-filter" onchange="applyFilters()" class="border-2 border-slate-300 rounded-lg px-4 py-2 bg-white text-slate-700 font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm cursor-pointer hover:border-blue-400 transition-colors">
-                    <option value="">📚 عرض كل المواد (All Courses)</option>
+
+            <!-- Live Stats Badges -->
+            <div id="stats-bar" class="flex flex-wrap items-center justify-center gap-3 bg-white px-4 py-2.5 rounded-xl shadow-sm border border-slate-200">
+                <div class="flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-800 rounded-lg border border-blue-200">
+                    <span class="text-xs font-bold text-blue-600">السكاشن:</span>
+                    <span id="stat-sections" class="font-extrabold text-base en-text">0</span>
+                </div>
+                <div class="flex items-center gap-2 px-3 py-1 bg-emerald-50 text-emerald-800 rounded-lg border border-emerald-200">
+                    <span class="text-xs font-bold text-emerald-600">إجمالي الساعات:</span>
+                    <span id="stat-hours" class="font-extrabold text-base en-text">0</span>
+                    <span class="text-xs font-semibold">ساعة</span>
+                </div>
+                <div class="flex items-center gap-2 px-3 py-1 bg-purple-50 text-purple-800 rounded-lg border border-purple-200">
+                    <span class="text-xs font-bold text-purple-600">أيام العمل:</span>
+                    <span id="stat-days" class="font-extrabold text-base en-text">0</span>
+                    <span class="text-xs font-semibold">أيام</span>
+                </div>
+            </div>
+
+            <!-- Filters & Controls -->
+            <div id="controls" class="flex flex-wrap gap-2.5 items-center justify-center">
+                <!-- فلتر المادة -->
+                <select id="course-filter" onchange="filterSchedule()" class="border-2 border-slate-300 rounded-lg px-3 py-2 bg-white text-slate-700 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm cursor-pointer hover:border-blue-400 transition-colors">
+                    <option value="">📚 كل المواد (All Courses)</option>
                     <option value="AHST.104">AHST.104</option>
                     <option value="BIOP112PT">BIOP112PT</option>
                     <option value="BIOPH-401">BIOPH-401</option>
@@ -50,13 +71,34 @@
                     <option value="PHY102">PHY102</option>
                     <option value="PHY102-IT">PHY102-IT</option>
                     <option value="PHY201">PHY201</option>
+                    <option value="PHYS.101">PHYS.101</option>
                     <option value="REST211">REST211</option>
-                    <option value="RMIT.203">RMIT.203</option>
                 </select>
 
-                <!-- TA Filter Dropdown (UPDATED) -->
-                <select id="ta-filter" onchange="applyFilters()" class="border-2 border-slate-300 rounded-lg px-4 py-2 bg-white text-slate-700 font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm cursor-pointer hover:border-blue-400 transition-colors">
-                    <option value="">👨‍🏫 عرض الكل (All Instructors)</option>
+                <!-- فلتر المعمل أو القاعة -->
+                <select id="location-filter" onchange="filterSchedule()" class="border-2 border-slate-300 rounded-lg px-3 py-2 bg-white text-slate-700 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm cursor-pointer hover:border-blue-400 transition-colors">
+                    <option value="">📍 كل المعامل (All Rooms)</option>
+                    <option value="304 LB PH">304 LB PH</option>
+                    <option value="404 LB PH">404 LB PH</option>
+                    <option value="323 LB PH">323 LB PH</option>
+                    <option value="604 LB BS">604 LB BS</option>
+                    <option value="S515">S515</option>
+                    <option value="S516">S516</option>
+                    <option value="T509">T509</option>
+                    <option value="T513">T513</option>
+                    <option value="T514">T514</option>
+                    <option value="311 R SS">311 R SS</option>
+                    <option value="312 R SS">312 R SS</option>
+                    <option value="407 R SS">407 R SS</option>
+                    <option value="451 R MC">451 R MC</option>
+                    <option value="468 R MC">468 R MC</option>
+                    <option value="479 R MC">479 R MC</option>
+                    <option value="480 R MC">480 R MC</option>
+                </select>
+
+                <!-- فلتر المعيد -->
+                <select id="ta-filter" onchange="filterSchedule()" class="border-2 border-slate-300 rounded-lg px-3 py-2 bg-white text-slate-700 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm cursor-pointer hover:border-blue-400 transition-colors">
+                    <option value="">👨‍🏫 كل المعيدين (All TAs)</option>
                     <option value="د. محمد علي">د. محمد علي</option>
                     <option value="إسراء عبد الرحمن">إسراء عبد الرحمن</option>
                     <option value="الزهراء">الزهراء</option>
@@ -84,9 +126,15 @@
                     <option value="يوسف كمال">يوسف كمال</option>
                 </select>
 
-                <button onclick="window.print()" class="bg-slate-800 hover:bg-slate-900 text-white font-bold py-2 px-5 rounded-lg shadow-md transition-colors flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                    حفظ PDF (Print)
+                <!-- زر إعادة الضبط -->
+                <button onclick="resetFilters()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-2 px-3 rounded-lg shadow-sm transition-colors text-sm" title="إلغاء الفلاتر">
+                    🔄 الكل
+                </button>
+
+                <!-- زر الطباعة -->
+                <button onclick="window.print()" class="bg-slate-800 hover:bg-slate-900 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-colors flex items-center gap-2 text-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                    حفظ PDF
                 </button>
             </div>
         </div>
@@ -108,7 +156,6 @@
 <tr class="border-b border-slate-200 hover:bg-slate-50 transition-colors"><td class="py-4 px-2 md:px-4 font-bold text-slate-700 bg-slate-100 text-center border-r border-slate-200 sticky left-0 z-20 shadow-[2px_0_8px_-3px_rgba(0,0,0,0.15)]">Saturday</td><td class="p-3 border-l border-slate-200 align-top"><div class="relative w-full" style="min-height: 268px;">
                 <div onclick="bringToFront(this)" class="stack-card bg-slate-700 text-white rounded-lg p-3 cursor-pointer border border-slate-800 shadow-lg hover:brightness-100" style="z-index: 70; top: 0px; transform: scale(1.0); filter: brightness(1.0); display: block;">
                     <div class="flex flex-col mb-2">
-                        
                         <div class="flex justify-between items-start mb-1.5">
                             <span class="font-bold text-sm tracking-tight truncate pl-1">AHST.104 (A)</span>
                             <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 4687</span>
@@ -140,7 +187,6 @@
                 </div>
                 <div onclick="bringToFront(this)" class="stack-card bg-teal-600 text-white rounded-lg p-3 cursor-pointer border border-teal-700 shadow-lg hover:brightness-100" style="z-index: 50; top: 28px; transform: scale(0.94); filter: brightness(0.88); display: block;">
                     <div class="flex flex-col mb-2">
-                        
                         <div class="flex justify-between items-start mb-1.5">
                             <span class="font-bold text-sm tracking-tight truncate pl-1">PHY101-IT (A)</span>
                             <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 7025</span>
@@ -154,9 +200,8 @@
                         <div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-teal-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">اياد علاء الدين</span></div><div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-teal-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">إسراء عبد الرحمن</span></div>
                     </div>
                 </div>
-                <div onclick="bringToFront(this)" class="stack-card bg-violet-600 text-white rounded-lg p-3 cursor-pointer border border-violet-700 shadow-lg hover:brightness-100" style="z-index: 40; top: 42px; transform: scale(0.91); filter: brightness(0.8200000000000001); display: block;">
+                <div onclick="bringToFront(this)" class="stack-card bg-violet-600 text-white rounded-lg p-3 cursor-pointer border border-violet-700 shadow-lg hover:brightness-100" style="z-index: 40; top: 42px; transform: scale(0.91); filter: brightness(0.82); display: block;">
                     <div class="flex flex-col mb-2">
-                        
                         <div class="flex justify-between items-start mb-1.5">
                             <span class="font-bold text-sm tracking-tight truncate pl-1">PHY102 (A)</span>
                             <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 5254</span>
@@ -172,7 +217,6 @@
                 </div>
                 <div onclick="bringToFront(this)" class="stack-card bg-violet-600 text-white rounded-lg p-3 cursor-pointer border border-violet-700 shadow-lg hover:brightness-100" style="z-index: 30; top: 56px; transform: scale(0.88); filter: brightness(0.76); display: block;">
                     <div class="flex flex-col mb-2">
-                        
                         <div class="flex justify-between items-start mb-1.5">
                             <span class="font-bold text-sm tracking-tight truncate pl-1">PHY102 (B)</span>
                             <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 5255</span>
@@ -188,7 +232,6 @@
                 </div>
                 <div onclick="bringToFront(this)" class="stack-card bg-purple-600 text-white rounded-lg p-3 cursor-pointer border border-purple-700 shadow-lg hover:brightness-100" style="z-index: 20; top: 70px; transform: scale(0.85); filter: brightness(0.7); display: block;">
                     <div class="flex flex-col mb-2">
-                        
                         <div class="flex justify-between items-start mb-1.5">
                             <span class="font-bold text-sm tracking-tight truncate pl-1">PHY201 (1)</span>
                             <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 6600</span>
@@ -202,9 +245,8 @@
                         <div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-purple-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">فاطمة العزب</span></div><div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-purple-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">عمر الكاشف</span></div>
                     </div>
                 </div>
-                <div onclick="bringToFront(this)" class="stack-card bg-blue-600 text-white rounded-lg p-3 cursor-pointer border border-blue-700 shadow-lg hover:brightness-100" style="z-index: 10; top: 84px; transform: scale(0.8200000000000001); filter: brightness(0.64); display: block;">
+                <div onclick="bringToFront(this)" class="stack-card bg-blue-600 text-white rounded-lg p-3 cursor-pointer border border-blue-700 shadow-lg hover:brightness-100" style="z-index: 10; top: 84px; transform: scale(0.82); filter: brightness(0.64); display: block;">
                     <div class="flex flex-col mb-2">
-                        
                         <div class="flex justify-between items-start mb-1.5">
                             <span class="font-bold text-sm tracking-tight truncate pl-1">PHYS.101 (F)</span>
                             <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 1430</span>
@@ -218,7 +260,7 @@
                         <div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-blue-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">نيره ياسين</span></div><div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-blue-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">عبد الرحمن كمال</span></div>
                     </div>
                 </div>
-                <div onclick="bringToFront(this)" class="stack-card bg-indigo-600 text-white rounded-lg p-3 cursor-pointer border border-indigo-700 shadow-lg hover:brightness-100" style="z-index: 0; top: 98px; transform: scale(0.79); filter: brightness(0.5800000000000001); display: block;">
+                <div onclick="bringToFront(this)" class="stack-card bg-indigo-600 text-white rounded-lg p-3 cursor-pointer border border-indigo-700 shadow-lg hover:brightness-100" style="z-index: 0; top: 98px; transform: scale(0.79); filter: brightness(0.58); display: block;">
                     <div class="flex flex-col mb-2">
                         <div class="text-[10px] bg-white/20 text-white px-1.5 py-0.5 rounded shadow-sm font-bold whitespace-nowrap mb-1.5 w-fit flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>10:00 - 11:00 AM</div>
                         <div class="flex justify-between items-start mb-1.5">
@@ -236,7 +278,6 @@
                 </div></div></td><td class="p-3 border-l border-slate-200 align-top"><div class="relative w-full" style="min-height: 254px;">
                 <div onclick="bringToFront(this)" class="stack-card bg-slate-700 text-white rounded-lg p-3 cursor-pointer border border-slate-800 shadow-lg hover:brightness-100" style="z-index: 60; top: 0px; transform: scale(1.0); filter: brightness(1.0); display: block;">
                     <div class="flex flex-col mb-2">
-                        
                         <div class="flex justify-between items-start mb-1.5">
                             <span class="font-bold text-sm tracking-tight truncate pl-1">AHST.104 (B)</span>
                             <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 4696</span>
@@ -252,7 +293,6 @@
                 </div>
                 <div onclick="bringToFront(this)" class="stack-card bg-fuchsia-600 text-white rounded-lg p-3 cursor-pointer border border-fuchsia-700 shadow-lg hover:brightness-100" style="z-index: 50; top: 14px; transform: scale(0.97); filter: brightness(0.94); display: block;">
                     <div class="flex flex-col mb-2">
-                        
                         <div class="flex justify-between items-start mb-1.5">
                             <span class="font-bold text-sm tracking-tight truncate pl-1">BPHYS101 (2)</span>
                             <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 3759</span>
@@ -268,7 +308,6 @@
                 </div>
                 <div onclick="bringToFront(this)" class="stack-card bg-indigo-600 text-white rounded-lg p-3 cursor-pointer border border-indigo-700 shadow-lg hover:brightness-100" style="z-index: 40; top: 28px; transform: scale(0.94); filter: brightness(0.88); display: block;">
                     <div class="flex flex-col mb-2">
-                        
                         <div class="flex justify-between items-start mb-1.5">
                             <span class="font-bold text-sm tracking-tight truncate pl-1">PHY101 (1)</span>
                             <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 5282</span>
@@ -282,9 +321,8 @@
                         <div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-indigo-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">سمر فتحي</span></div><div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-indigo-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">يوسف اسامه</span></div>
                     </div>
                 </div>
-                <div onclick="bringToFront(this)" class="stack-card bg-indigo-600 text-white rounded-lg p-3 cursor-pointer border border-indigo-700 shadow-lg hover:brightness-100" style="z-index: 30; top: 42px; transform: scale(0.91); filter: brightness(0.8200000000000001); display: block;">
+                <div onclick="bringToFront(this)" class="stack-card bg-indigo-600 text-white rounded-lg p-3 cursor-pointer border border-indigo-700 shadow-lg hover:brightness-100" style="z-index: 30; top: 42px; transform: scale(0.91); filter: brightness(0.82); display: block;">
                     <div class="flex flex-col mb-2">
-                        
                         <div class="flex justify-between items-start mb-1.5">
                             <span class="font-bold text-sm tracking-tight truncate pl-1">PHY101 (2)</span>
                             <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 5283</span>
@@ -300,7 +338,6 @@
                 </div>
                 <div onclick="bringToFront(this)" class="stack-card bg-teal-600 text-white rounded-lg p-3 cursor-pointer border border-teal-700 shadow-lg hover:brightness-100" style="z-index: 20; top: 56px; transform: scale(0.88); filter: brightness(0.76); display: block;">
                     <div class="flex flex-col mb-2">
-                        
                         <div class="flex justify-between items-start mb-1.5">
                             <span class="font-bold text-sm tracking-tight truncate pl-1">PHY101-IT (B)</span>
                             <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 7027</span>
@@ -316,7 +353,6 @@
                 </div>
                 <div onclick="bringToFront(this)" class="stack-card bg-purple-600 text-white rounded-lg p-3 cursor-pointer border border-purple-700 shadow-lg hover:brightness-100" style="z-index: 10; top: 70px; transform: scale(0.85); filter: brightness(0.7); display: block;">
                     <div class="flex flex-col mb-2">
-                        
                         <div class="flex justify-between items-start mb-1.5">
                             <span class="font-bold text-sm tracking-tight truncate pl-1">PHY201 (2)</span>
                             <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 6602</span>
@@ -330,9 +366,98 @@
                         <div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-purple-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">دنيا عادل</span></div><div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-purple-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">مصطفى احمد</span></div>
                     </div>
                 </div>
-                <div onclick="bringToFront(this)" class="stack-card bg-blue-600 text-white rounded-lg p-3 cursor-pointer border border-blue-700 shadow-lg hover:brightness-100" style="z-index: 0; top: 84px; transform: scale(0.8200000000000001); filter: brightness(0.64); display: block;">
+                <div onclick="bringToFront(this)" class="stack-card bg-blue-600 text-white rounded-lg p-3 cursor-pointer border border-blue-700 shadow-lg hover:brightness-100" style="z-index: 0; top: 84px; transform: scale(0.82); filter: brightness(0.64); display: block;">
                     <div class="flex flex-col mb-2">
-                        
+                        <div class="flex justify-between items-start mb-1.5">
+                            <span class="font-bold text-sm tracking-tight truncate pl-1">PHYS.101 (R)</span>
+                            <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 1896</span>
+                        </div>
+                        <div class="text-[11px] text-white/90 flex items-center gap-1 opacity-90">
+                            <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            <span class="truncate">304 LB PH</span>
+                        </div>
+                    </div>
+                    <div class="bg-blue-700/50 rounded p-1.5 text-xs text-right min-h-[40px]" dir="rtl">
+                        <div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-blue-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">نيره ياسين</span></div><div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-blue-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">عبد الرحمن كمال</span></div>
+                    </div>
+                </div></div></td><td class="p-3 border-l border-slate-200 align-top"><div class="relative w-full" style="min-height: 240px;">
+                <div onclick="bringToFront(this)" class="stack-card bg-slate-700 text-white rounded-lg p-3 cursor-pointer border border-slate-800 shadow-lg hover:brightness-100" style="z-index: 50; top: 0px; transform: scale(1.0); filter: brightness(1.0); display: block;">
+                    <div class="flex flex-col mb-2">
+                        <div class="flex justify-between items-start mb-1.5">
+                            <span class="font-bold text-sm tracking-tight truncate pl-1">AHST.104 (C)</span>
+                            <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 4699</span>
+                        </div>
+                        <div class="text-[11px] text-white/90 flex items-center gap-1 opacity-90">
+                            <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            <span class="truncate">404 LB PH</span>
+                        </div>
+                    </div>
+                    <div class="bg-slate-800/50 rounded p-1.5 text-xs text-right min-h-[40px]" dir="rtl">
+                        <div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-slate-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">رحمة طارق</span></div><div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-slate-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">مصعب وليد</span></div>
+                    </div>
+                </div>
+                <div onclick="bringToFront(this)" class="stack-card bg-indigo-600 text-white rounded-lg p-3 cursor-pointer border border-indigo-700 shadow-lg hover:brightness-100" style="z-index: 40; top: 14px; transform: scale(0.97); filter: brightness(0.94); display: block;">
+                    <div class="flex flex-col mb-2">
+                        <div class="flex justify-between items-start mb-1.5">
+                            <span class="font-bold text-sm tracking-tight truncate pl-1">PHY101 (3)</span>
+                            <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 5284</span>
+                        </div>
+                        <div class="text-[11px] text-white/90 flex items-center gap-1 opacity-90">
+                            <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            <span class="truncate">S515</span>
+                        </div>
+                    </div>
+                    <div class="bg-indigo-700/50 rounded p-1.5 text-xs text-right min-h-[40px]" dir="rtl">
+                        <div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-indigo-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">سمر فتحي</span></div><div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-indigo-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">اياد علاء الدين</span></div>
+                    </div>
+                </div>
+                <div onclick="bringToFront(this)" class="stack-card bg-indigo-600 text-white rounded-lg p-3 cursor-pointer border border-indigo-700 shadow-lg hover:brightness-100" style="z-index: 30; top: 28px; transform: scale(0.94); filter: brightness(0.88); display: block;">
+                    <div class="flex flex-col mb-2">
+                        <div class="flex justify-between items-start mb-1.5">
+                            <span class="font-bold text-sm tracking-tight truncate pl-1">PHY101 (4)</span>
+                            <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 5285</span>
+                        </div>
+                        <div class="text-[11px] text-white/90 flex items-center gap-1 opacity-90">
+                            <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            <span class="truncate">S516</span>
+                        </div>
+                    </div>
+                    <div class="bg-indigo-700/50 rounded p-1.5 text-xs text-right min-h-[40px]" dir="rtl">
+                        <div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-indigo-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">سمر فوزي</span></div>
+                    </div>
+                </div>
+                <div onclick="bringToFront(this)" class="stack-card bg-teal-600 text-white rounded-lg p-3 cursor-pointer border border-teal-700 shadow-lg hover:brightness-100" style="z-index: 20; top: 42px; transform: scale(0.91); filter: brightness(0.82); display: block;">
+                    <div class="flex flex-col mb-2">
+                        <div class="flex justify-between items-start mb-1.5">
+                            <span class="font-bold text-sm tracking-tight truncate pl-1">PHY101-IT (C)</span>
+                            <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 7028</span>
+                        </div>
+                        <div class="text-[11px] text-white/90 flex items-center gap-1 opacity-90">
+                            <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            <span class="truncate">604 LB BS</span>
+                        </div>
+                    </div>
+                    <div class="bg-teal-700/50 rounded p-1.5 text-xs text-right min-h-[40px]" dir="rtl">
+                        <div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-teal-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">محمد عبد المعتمد</span></div><div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-teal-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">إسراء عبد الرحمن</span></div>
+                    </div>
+                </div>
+                <div onclick="bringToFront(this)" class="stack-card bg-purple-600 text-white rounded-lg p-3 cursor-pointer border border-purple-700 shadow-lg hover:brightness-100" style="z-index: 10; top: 56px; transform: scale(0.88); filter: brightness(0.76); display: block;">
+                    <div class="flex flex-col mb-2">
+                        <div class="flex justify-between items-start mb-1.5">
+                            <span class="font-bold text-sm tracking-tight truncate pl-1">PHY201 (3)</span>
+                            <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 6603</span>
+                        </div>
+                        <div class="text-[11px] text-white/90 flex items-center gap-1 opacity-90">
+                            <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            <span class="truncate">T509</span>
+                        </div>
+                    </div>
+                    <div class="bg-purple-700/50 rounded p-1.5 text-xs text-right min-h-[40px]" dir="rtl">
+                        <div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-purple-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">دنيا عادل</span></div><div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-purple-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">عمر الكاشف</span></div>
+                    </div>
+                </div>
+                <div onclick="bringToFront(this)" class="stack-card bg-blue-600 text-white rounded-lg p-3 cursor-pointer border border-blue-700 shadow-lg hover:brightness-100" style="z-index: 0; top: 70px; transform: scale(0.85); filter: brightness(0.7); display: block;">
+                    <div class="flex flex-col mb-2">
                         <div class="flex justify-between items-start mb-1.5">
                             <span class="font-bold text-sm tracking-tight truncate pl-1">PHYS.101 (O)</span>
                             <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 1439</span>
@@ -348,7 +473,6 @@
                 </div></div></td><td class="p-3 border-l border-slate-200 align-top"><div class="relative w-full" style="min-height: 310px;">
                 <div onclick="bringToFront(this)" class="stack-card bg-slate-700 text-white rounded-lg p-3 cursor-pointer border border-slate-800 shadow-lg hover:brightness-100" style="z-index: 100; top: 0px; transform: scale(1.0); filter: brightness(1.0); display: block;">
                     <div class="flex flex-col mb-2">
-                        
                         <div class="flex justify-between items-start mb-1.5">
                             <span class="font-bold text-sm tracking-tight truncate pl-1">AHST.104 (D)</span>
                             <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 4702</span>
@@ -364,7 +488,6 @@
                 </div>
                 <div onclick="bringToFront(this)" class="stack-card bg-fuchsia-600 text-white rounded-lg p-3 cursor-pointer border border-fuchsia-700 shadow-lg hover:brightness-100" style="z-index: 90; top: 14px; transform: scale(0.97); filter: brightness(0.94); display: block;">
                     <div class="flex flex-col mb-2">
-                        
                         <div class="flex justify-between items-start mb-1.5">
                             <span class="font-bold text-sm tracking-tight truncate pl-1">BPHYS101 (4)</span>
                             <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 3763</span>
@@ -394,9 +517,8 @@
                         <div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-indigo-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">اياد علاء الدين</span></div>
                     </div>
                 </div>
-                <div onclick="bringToFront(this)" class="stack-card bg-indigo-600 text-white rounded-lg p-3 cursor-pointer border border-indigo-700 shadow-lg hover:brightness-100" style="z-index: 70; top: 42px; transform: scale(0.91); filter: brightness(0.8200000000000001); display: block;">
+                <div onclick="bringToFront(this)" class="stack-card bg-indigo-600 text-white rounded-lg p-3 cursor-pointer border border-indigo-700 shadow-lg hover:brightness-100" style="z-index: 70; top: 42px; transform: scale(0.91); filter: brightness(0.82); display: block;">
                     <div class="flex flex-col mb-2">
-                        
                         <div class="flex justify-between items-start mb-1.5">
                             <span class="font-bold text-sm tracking-tight truncate pl-1">PHY101 (5)</span>
                             <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 5288</span>
@@ -412,7 +534,6 @@
                 </div>
                 <div onclick="bringToFront(this)" class="stack-card bg-indigo-600 text-white rounded-lg p-3 cursor-pointer border border-indigo-700 shadow-lg hover:brightness-100" style="z-index: 60; top: 56px; transform: scale(0.88); filter: brightness(0.76); display: block;">
                     <div class="flex flex-col mb-2">
-                        
                         <div class="flex justify-between items-start mb-1.5">
                             <span class="font-bold text-sm tracking-tight truncate pl-1">PHY101 (6)</span>
                             <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 5292</span>
@@ -428,7 +549,6 @@
                 </div>
                 <div onclick="bringToFront(this)" class="stack-card bg-teal-600 text-white rounded-lg p-3 cursor-pointer border border-teal-700 shadow-lg hover:brightness-100" style="z-index: 50; top: 70px; transform: scale(0.85); filter: brightness(0.7); display: block;">
                     <div class="flex flex-col mb-2">
-                        
                         <div class="flex justify-between items-start mb-1.5">
                             <span class="font-bold text-sm tracking-tight truncate pl-1">PHY101-IT (D)</span>
                             <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 7030</span>
@@ -442,7 +562,7 @@
                         <div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-teal-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">محمد عبد المعتمد</span></div><div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-teal-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">إسراء عبد الرحمن</span></div>
                     </div>
                 </div>
-                <div onclick="bringToFront(this)" class="stack-card bg-violet-600 text-white rounded-lg p-3 cursor-pointer border border-violet-700 shadow-lg hover:brightness-100" style="z-index: 40; top: 84px; transform: scale(0.8200000000000001); filter: brightness(0.64); display: block;">
+                <div onclick="bringToFront(this)" class="stack-card bg-violet-600 text-white rounded-lg p-3 cursor-pointer border border-violet-700 shadow-lg hover:brightness-100" style="z-index: 40; top: 84px; transform: scale(0.82); filter: brightness(0.64); display: block;">
                     <div class="flex flex-col mb-2">
                         <div class="text-[10px] bg-white/20 text-white px-1.5 py-0.5 rounded shadow-sm font-bold whitespace-nowrap mb-1.5 w-fit flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>03:00 - 04:00 PM</div>
                         <div class="flex justify-between items-start mb-1.5">
@@ -458,9 +578,8 @@
                         <div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-violet-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">مصطفى احمد</span></div>
                     </div>
                 </div>
-                <div onclick="bringToFront(this)" class="stack-card bg-purple-600 text-white rounded-lg p-3 cursor-pointer border border-purple-700 shadow-lg hover:brightness-100" style="z-index: 30; top: 98px; transform: scale(0.79); filter: brightness(0.5800000000000001); display: block;">
+                <div onclick="bringToFront(this)" class="stack-card bg-purple-600 text-white rounded-lg p-3 cursor-pointer border border-purple-700 shadow-lg hover:brightness-100" style="z-index: 30; top: 98px; transform: scale(0.79); filter: brightness(0.58); display: block;">
                     <div class="flex flex-col mb-2">
-                        
                         <div class="flex justify-between items-start mb-1.5">
                             <span class="font-bold text-sm tracking-tight truncate pl-1">PHY201 (4)</span>
                             <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 6604</span>
@@ -476,7 +595,6 @@
                 </div>
                 <div onclick="bringToFront(this)" class="stack-card bg-blue-600 text-white rounded-lg p-3 cursor-pointer border border-blue-700 shadow-lg hover:brightness-100" style="z-index: 20; top: 112px; transform: scale(0.76); filter: brightness(0.52); display: block;">
                     <div class="flex flex-col mb-2">
-                        
                         <div class="flex justify-between items-start mb-1.5">
                             <span class="font-bold text-sm tracking-tight truncate pl-1">PHYS.101 (G)</span>
                             <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 1431</span>
@@ -487,516 +605,4 @@
                         </div>
                     </div>
                     <div class="bg-blue-700/50 rounded p-1.5 text-xs text-right min-h-[40px]" dir="rtl">
-                        <div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-blue-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">نيره ياسين</span></div><div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-blue-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">عبد الرحمن كمال</span></div>
-                    </div>
-                </div>
-                <div onclick="bringToFront(this)" class="stack-card bg-indigo-600 text-white rounded-lg p-3 cursor-pointer border border-indigo-700 shadow-lg hover:brightness-100" style="z-index: 10; top: 126px; transform: scale(0.73); filter: brightness(0.45999999999999996); display: block;">
-                    <div class="flex flex-col mb-2">
-                        <div class="text-[10px] bg-white/20 text-white px-1.5 py-0.5 rounded shadow-sm font-bold whitespace-nowrap mb-1.5 w-fit flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>04:00 - 05:00 PM</div>
-                        <div class="flex justify-between items-start mb-1.5">
-                            <span class="font-bold text-sm tracking-tight truncate pl-1">PHY101 (4)</span>
-                            <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 5285</span>
-                        </div>
-                        <div class="text-[11px] text-white/90 flex items-center gap-1 opacity-90">
-                            <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                            <span class="truncate">407 R SS</span>
-                        </div>
-                    </div>
-                    <div class="bg-indigo-700/50 rounded p-1.5 text-xs text-right min-h-[40px]" dir="rtl">
-                        <div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-indigo-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">اياد علاء الدين</span></div>
-                    </div>
-                </div>
-                <div onclick="bringToFront(this)" class="stack-card bg-violet-600 text-white rounded-lg p-3 cursor-pointer border border-violet-700 shadow-lg hover:brightness-100" style="z-index: 0; top: 140px; transform: scale(0.7); filter: brightness(0.4); display: block;">
-                    <div class="flex flex-col mb-2">
-                        <div class="text-[10px] bg-white/20 text-white px-1.5 py-0.5 rounded shadow-sm font-bold whitespace-nowrap mb-1.5 w-fit flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>04:00 - 05:00 PM</div>
-                        <div class="flex justify-between items-start mb-1.5">
-                            <span class="font-bold text-sm tracking-tight truncate pl-1">PHY102 (B | C)</span>
-                            <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 5255 | 8450</span>
-                        </div>
-                        <div class="text-[11px] text-white/90 flex items-center gap-1 opacity-90">
-                            <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                            <span class="truncate">468 R MC</span>
-                        </div>
-                    </div>
-                    <div class="bg-violet-700/50 rounded p-1.5 text-xs text-right min-h-[40px]" dir="rtl">
-                        <div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-violet-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">مصطفى احمد</span></div>
-                    </div>
-                </div></div></td><td class="p-3 border-l border-slate-200 align-top"><div class="relative w-full" style="min-height: 198px;">
-                <div onclick="bringToFront(this)" class="stack-card bg-emerald-600 text-white rounded-lg p-3 cursor-pointer border border-emerald-700 shadow-lg hover:brightness-100" style="z-index: 20; top: 0px; transform: scale(1.0); filter: brightness(1.0); display: block;">
-                    <div class="flex flex-col mb-2">
-                        
-                        <div class="flex justify-between items-start mb-1.5">
-                            <span class="font-bold text-sm tracking-tight truncate pl-1">BIOPH-401 (G)</span>
-                            <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 7120</span>
-                        </div>
-                        <div class="text-[11px] text-white/90 flex items-center gap-1 opacity-90">
-                            <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                            <span class="truncate">304 LB PH</span>
-                        </div>
-                    </div>
-                    <div class="bg-emerald-700/50 rounded p-1.5 text-xs text-right min-h-[40px]" dir="rtl">
-                        <div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-emerald-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">فاطمة العزب</span></div>
-                    </div>
-                </div>
-                <div onclick="bringToFront(this)" class="stack-card bg-violet-600 text-white rounded-lg p-3 cursor-pointer border border-violet-700 shadow-lg hover:brightness-100" style="z-index: 10; top: 14px; transform: scale(0.97); filter: brightness(0.94); display: block;">
-                    <div class="flex flex-col mb-2">
-                        
-                        <div class="flex justify-between items-start mb-1.5">
-                            <span class="font-bold text-sm tracking-tight truncate pl-1">PHY102 (C)</span>
-                            <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 8450</span>
-                        </div>
-                        <div class="text-[11px] text-white/90 flex items-center gap-1 opacity-90">
-                            <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                            <span class="truncate">S515</span>
-                        </div>
-                    </div>
-                    <div class="bg-violet-700/50 rounded p-1.5 text-xs text-right min-h-[40px]" dir="rtl">
-                        <div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-violet-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">محمد عبد المعتمد</span></div><div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-violet-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">مصطفى احمد</span></div>
-                    </div>
-                </div>
-                <div onclick="bringToFront(this)" class="stack-card bg-purple-600 text-white rounded-lg p-3 cursor-pointer border border-purple-700 shadow-lg hover:brightness-100" style="z-index: 0; top: 28px; transform: scale(0.94); filter: brightness(0.88); display: block;">
-                    <div class="flex flex-col mb-2">
-                        
-                        <div class="flex justify-between items-start mb-1.5">
-                            <span class="font-bold text-sm tracking-tight truncate pl-1">PHY201 (26)</span>
-                            <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 6621</span>
-                        </div>
-                        <div class="text-[11px] text-white/90 flex items-center gap-1 opacity-90">
-                            <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                            <span class="truncate">T509</span>
-                        </div>
-                    </div>
-                    <div class="bg-purple-700/50 rounded p-1.5 text-xs text-right min-h-[40px]" dir="rtl">
-                        <div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-purple-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">يوسف اسامه</span></div>
-                    </div>
-                </div></div></td></tr><tr class="border-b border-slate-200 hover:bg-slate-50 transition-colors"><td class="py-4 px-2 md:px-4 font-bold text-slate-700 bg-slate-100 text-center border-r border-slate-200 sticky left-0 z-20 shadow-[2px_0_8px_-3px_rgba(0,0,0,0.15)]">Sunday</td><td class="p-3 border-l border-slate-200 align-top"><div class="relative w-full" style="min-height: 296px;">
-                <div onclick="bringToFront(this)" class="stack-card bg-gray-600 text-white rounded-lg p-3 cursor-pointer border border-gray-700 shadow-lg hover:brightness-100" style="z-index: 90; top: 0px; transform: scale(1.0); filter: brightness(1.0); display: block;">
-                    <div class="flex flex-col mb-2">
-                        
-                        <div class="flex justify-between items-start mb-1.5">
-                            <span class="font-bold text-sm tracking-tight truncate pl-1">BIOP112PT (A)</span>
-                            <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 7761</span>
-                        </div>
-                        <div class="text-[11px] text-white/90 flex items-center gap-1 opacity-90">
-                            <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                            <span class="truncate">604 LB BS</span>
-                        </div>
-                    </div>
-                    <div class="bg-gray-700/50 rounded p-1.5 text-xs text-right min-h-[40px]" dir="rtl">
-                        <div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-gray-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">بثينة عزت</span></div>
-                    </div>
-                </div>
-                <div onclick="bringToFront(this)" class="stack-card bg-fuchsia-600 text-white rounded-lg p-3 cursor-pointer border border-fuchsia-700 shadow-lg hover:brightness-100" style="z-index: 80; top: 14px; transform: scale(0.97); filter: brightness(0.94); display: block;">
-                    <div class="flex flex-col mb-2">
-                        
-                        <div class="flex justify-between items-start mb-1.5">
-                            <span class="font-bold text-sm tracking-tight truncate pl-1">BPHYS101 (5)</span>
-                            <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 3769</span>
-                        </div>
-                        <div class="text-[11px] text-white/90 flex items-center gap-1 opacity-90">
-                            <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                            <span class="truncate">323 LB PH</span>
-                        </div>
-                    </div>
-                    <div class="bg-fuchsia-700/50 rounded p-1.5 text-xs text-right min-h-[40px]" dir="rtl">
-                        <div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-fuchsia-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">ايات علي</span></div><div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-fuchsia-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">مصعب وليد</span></div>
-                    </div>
-                </div>
-                <div onclick="bringToFront(this)" class="stack-card bg-indigo-600 text-white rounded-lg p-3 cursor-pointer border border-indigo-700 shadow-lg hover:brightness-100" style="z-index: 70; top: 28px; transform: scale(0.94); filter: brightness(0.88); display: block;">
-                    <div class="flex flex-col mb-2">
-                        <div class="text-[10px] bg-white/20 text-white px-1.5 py-0.5 rounded shadow-sm font-bold whitespace-nowrap mb-1.5 w-fit flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>09:00 - 10:00 AM</div>
-                        <div class="flex justify-between items-start mb-1.5">
-                            <span class="font-bold text-sm tracking-tight truncate pl-1">PHY101 (5)</span>
-                            <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 5288</span>
-                        </div>
-                        <div class="text-[11px] text-white/90 flex items-center gap-1 opacity-90">
-                            <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                            <span class="truncate">311 R SS</span>
-                        </div>
-                    </div>
-                    <div class="bg-indigo-700/50 rounded p-1.5 text-xs text-right min-h-[40px]" dir="rtl">
-                        <div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-indigo-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">عبد الرحمن كمال</span></div>
-                    </div>
-                </div>
-                <div onclick="bringToFront(this)" class="stack-card bg-indigo-600 text-white rounded-lg p-3 cursor-pointer border border-indigo-700 shadow-lg hover:brightness-100" style="z-index: 60; top: 42px; transform: scale(0.91); filter: brightness(0.8200000000000001); display: block;">
-                    <div class="flex flex-col mb-2">
-                        
-                        <div class="flex justify-between items-start mb-1.5">
-                            <span class="font-bold text-sm tracking-tight truncate pl-1">PHY101 (7)</span>
-                            <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 6015</span>
-                        </div>
-                        <div class="text-[11px] text-white/90 flex items-center gap-1 opacity-90">
-                            <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                            <span class="truncate">S515</span>
-                        </div>
-                    </div>
-                    <div class="bg-indigo-700/50 rounded p-1.5 text-xs text-right min-h-[40px]" dir="rtl">
-                        <div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-indigo-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">محمود بكرى</span></div><div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-indigo-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">مصطفى احمد</span></div>
-                    </div>
-                </div>
-                <div onclick="bringToFront(this)" class="stack-card bg-indigo-600 text-white rounded-lg p-3 cursor-pointer border border-indigo-700 shadow-lg hover:brightness-100" style="z-index: 50; top: 56px; transform: scale(0.88); filter: brightness(0.76); display: block;">
-                    <div class="flex flex-col mb-2">
-                        
-                        <div class="flex justify-between items-start mb-1.5">
-                            <span class="font-bold text-sm tracking-tight truncate pl-1">PHY101 (8)</span>
-                            <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 6016</span>
-                        </div>
-                        <div class="text-[11px] text-white/90 flex items-center gap-1 opacity-90">
-                            <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                            <span class="truncate">S516</span>
-                        </div>
-                    </div>
-                    <div class="bg-indigo-700/50 rounded p-1.5 text-xs text-right min-h-[40px]" dir="rtl">
-                        <div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-indigo-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">سمر فتحي</span></div>
-                    </div>
-                </div>
-                <div onclick="bringToFront(this)" class="stack-card bg-purple-600 text-white rounded-lg p-3 cursor-pointer border border-purple-700 shadow-lg hover:brightness-100" style="z-index: 40; top: 70px; transform: scale(0.85); filter: brightness(0.7); display: block;">
-                    <div class="flex flex-col mb-2">
-                        <div class="text-[10px] bg-white/20 text-white px-1.5 py-0.5 rounded shadow-sm font-bold whitespace-nowrap mb-1.5 w-fit flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>09:00 - 10:00 AM</div>
-                        <div class="flex justify-between items-start mb-1.5">
-                            <span class="font-bold text-sm tracking-tight truncate pl-1">PHY201 (1 | 2 | 22)</span>
-                            <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 6600 | 6602 | 8028</span>
-                        </div>
-                        <div class="text-[11px] text-white/90 flex items-center gap-1 opacity-90">
-                            <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                            <span class="truncate">451 R MC</span>
-                        </div>
-                    </div>
-                    <div class="bg-purple-700/50 rounded p-1.5 text-xs text-right min-h-[40px]" dir="rtl">
-                        <div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-purple-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">عمر الكاشف</span></div>
-                    </div>
-                </div>
-                <div onclick="bringToFront(this)" class="stack-card bg-purple-600 text-white rounded-lg p-3 cursor-pointer border border-purple-700 shadow-lg hover:brightness-100" style="z-index: 30; top: 84px; transform: scale(0.8200000000000001); filter: brightness(0.64); display: block;">
-                    <div class="flex flex-col mb-2">
-                        
-                        <div class="flex justify-between items-start mb-1.5">
-                            <span class="font-bold text-sm tracking-tight truncate pl-1">PHY201 (5)</span>
-                            <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 6605</span>
-                        </div>
-                        <div class="text-[11px] text-white/90 flex items-center gap-1 opacity-90">
-                            <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                            <span class="truncate">T509</span>
-                        </div>
-                    </div>
-                    <div class="bg-purple-700/50 rounded p-1.5 text-xs text-right min-h-[40px]" dir="rtl">
-                        <div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-purple-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">دنيا عادل</span></div><div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-purple-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">كريم يونس</span></div>
-                    </div>
-                </div>
-                <div onclick="bringToFront(this)" class="stack-card bg-blue-600 text-white rounded-lg p-3 cursor-pointer border border-blue-700 shadow-lg hover:brightness-100" style="z-index: 20; top: 98px; transform: scale(0.79); filter: brightness(0.5800000000000001); display: block;">
-                    <div class="flex flex-col mb-2">
-                        
-                        <div class="flex justify-between items-start mb-1.5">
-                            <span class="font-bold text-sm tracking-tight truncate pl-1">PHYS.101 (N)</span>
-                            <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 1438</span>
-                        </div>
-                        <div class="text-[11px] text-white/90 flex items-center gap-1 opacity-90">
-                            <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                            <span class="truncate">304 LB PH</span>
-                        </div>
-                    </div>
-                    <div class="bg-blue-700/50 rounded p-1.5 text-xs text-right min-h-[40px]" dir="rtl">
-                        <div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-blue-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">إسراء عبد الرحمن</span></div><div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-blue-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">اياد علاء الدين</span></div>
-                    </div>
-                </div>
-                <div onclick="bringToFront(this)" class="stack-card bg-indigo-600 text-white rounded-lg p-3 cursor-pointer border border-indigo-700 shadow-lg hover:brightness-100" style="z-index: 10; top: 112px; transform: scale(0.76); filter: brightness(0.52); display: block;">
-                    <div class="flex flex-col mb-2">
-                        <div class="text-[10px] bg-white/20 text-white px-1.5 py-0.5 rounded shadow-sm font-bold whitespace-nowrap mb-1.5 w-fit flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>10:00 - 11:00 AM</div>
-                        <div class="flex justify-between items-start mb-1.5">
-                            <span class="font-bold text-sm tracking-tight truncate pl-1">PHY101 (9 | 10)</span>
-                            <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 6017 | 6018</span>
-                        </div>
-                        <div class="text-[11px] text-white/90 flex items-center gap-1 opacity-90">
-                            <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                            <span class="truncate">311 R SS</span>
-                        </div>
-                    </div>
-                    <div class="bg-indigo-700/50 rounded p-1.5 text-xs text-right min-h-[40px]" dir="rtl">
-                        <div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-indigo-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">عبد الرحمن كمال</span></div>
-                    </div>
-                </div>
-                <div onclick="bringToFront(this)" class="stack-card bg-purple-600 text-white rounded-lg p-3 cursor-pointer border border-purple-700 shadow-lg hover:brightness-100" style="z-index: 0; top: 126px; transform: scale(0.73); filter: brightness(0.45999999999999996); display: block;">
-                    <div class="flex flex-col mb-2">
-                        <div class="text-[10px] bg-white/20 text-white px-1.5 py-0.5 rounded shadow-sm font-bold whitespace-nowrap mb-1.5 w-fit flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>10:00 - 11:00 AM</div>
-                        <div class="flex justify-between items-start mb-1.5">
-                            <span class="font-bold text-sm tracking-tight truncate pl-1">PHY201 (3 | 4 | 6 | 14 | 21)</span>
-                            <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 6603 | 6604 | 6606 | 6615 | 8027</span>
-                        </div>
-                        <div class="text-[11px] text-white/90 flex items-center gap-1 opacity-90">
-                            <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                            <span class="truncate">451 R MC</span>
-                        </div>
-                    </div>
-                    <div class="bg-purple-700/50 rounded p-1.5 text-xs text-right min-h-[40px]" dir="rtl">
-                        <div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-purple-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">عمر الكاشف</span></div>
-                    </div>
-                </div></div></td><td class="p-3 border-l border-slate-200 align-top"><div class="relative w-full" style="min-height: 296px;">
-                <div onclick="bringToFront(this)" class="stack-card bg-slate-700 text-white rounded-lg p-3 cursor-pointer border border-slate-800 shadow-lg hover:brightness-100" style="z-index: 90; top: 0px; transform: scale(1.0); filter: brightness(1.0); display: block;">
-                    <div class="flex flex-col mb-2">
-                        
-                        <div class="flex justify-between items-start mb-1.5">
-                            <span class="font-bold text-sm tracking-tight truncate pl-1">AHST.104 (F)</span>
-                            <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: nan</span>
-                        </div>
-                        <div class="text-[11px] text-white/90 flex items-center gap-1 opacity-90">
-                            <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                            <span class="truncate">404 LB PH</span>
-                        </div>
-                    </div>
-                    <div class="bg-slate-800/50 rounded p-1.5 text-xs text-right min-h-[40px]" dir="rtl">
-                        <div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-slate-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">مصعب وليد</span></div>
-                    </div>
-                </div>
-                <div onclick="bringToFront(this)" class="stack-card bg-fuchsia-600 text-white rounded-lg p-3 cursor-pointer border border-fuchsia-700 shadow-lg hover:brightness-100" style="z-index: 80; top: 14px; transform: scale(0.97); filter: brightness(0.94); display: block;">
-                    <div class="flex flex-col mb-2">
-                        
-                        <div class="flex justify-between items-start mb-1.5">
-                            <span class="font-bold text-sm tracking-tight truncate pl-1">BPHYS101 (6)</span>
-                            <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 3771</span>
-                        </div>
-                        <div class="text-[11px] text-white/90 flex items-center gap-1 opacity-90">
-                            <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                            <span class="truncate">323 LB PH</span>
-                        </div>
-                    </div>
-                    <div class="bg-fuchsia-700/50 rounded p-1.5 text-xs text-right min-h-[40px]" dir="rtl">
-                        <div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-fuchsia-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">ايات علي</span></div><div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-fuchsia-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">بثينة عزت</span></div>
-                    </div>
-                </div>
-                <div onclick="bringToFront(this)" class="stack-card bg-indigo-600 text-white rounded-lg p-3 cursor-pointer border border-indigo-700 shadow-lg hover:brightness-100" style="z-index: 70; top: 28px; transform: scale(0.94); filter: brightness(0.88); display: block;">
-                    <div class="flex flex-col mb-2">
-                        
-                        <div class="flex justify-between items-start mb-1.5">
-                            <span class="font-bold text-sm tracking-tight truncate pl-1">PHY101 (10)</span>
-                            <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 6018</span>
-                        </div>
-                        <div class="text-[11px] text-white/90 flex items-center gap-1 opacity-90">
-                            <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                            <span class="truncate">S516</span>
-                        </div>
-                    </div>
-                    <div class="bg-indigo-700/50 rounded p-1.5 text-xs text-right min-h-[40px]" dir="rtl">
-                        <div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-indigo-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">سمر فتحي</span></div>
-                    </div>
-                </div>
-                <div onclick="bringToFront(this)" class="stack-card bg-indigo-600 text-white rounded-lg p-3 cursor-pointer border border-indigo-700 shadow-lg hover:brightness-100" style="z-index: 60; top: 42px; transform: scale(0.91); filter: brightness(0.8200000000000001); display: block;">
-                    <div class="flex flex-col mb-2">
-                        <div class="text-[10px] bg-white/20 text-white px-1.5 py-0.5 rounded shadow-sm font-bold whitespace-nowrap mb-1.5 w-fit flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>11:00 - 12:00 PM</div>
-                        <div class="flex justify-between items-start mb-1.5">
-                            <span class="font-bold text-sm tracking-tight truncate pl-1">PHY101 (7 | 8)</span>
-                            <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 6015 | 6016</span>
-                        </div>
-                        <div class="text-[11px] text-white/90 flex items-center gap-1 opacity-90">
-                            <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                            <span class="truncate">311 R SS</span>
-                        </div>
-                    </div>
-                    <div class="bg-indigo-700/50 rounded p-1.5 text-xs text-right min-h-[40px]" dir="rtl">
-                        <div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-indigo-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">اياد علاء الدين</span></div>
-                    </div>
-                </div>
-                <div onclick="bringToFront(this)" class="stack-card bg-indigo-600 text-white rounded-lg p-3 cursor-pointer border border-indigo-700 shadow-lg hover:brightness-100" style="z-index: 50; top: 56px; transform: scale(0.88); filter: brightness(0.76); display: block;">
-                    <div class="flex flex-col mb-2">
-                        
-                        <div class="flex justify-between items-start mb-1.5">
-                            <span class="font-bold text-sm tracking-tight truncate pl-1">PHY101 (9)</span>
-                            <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 6017</span>
-                        </div>
-                        <div class="text-[11px] text-white/90 flex items-center gap-1 opacity-90">
-                            <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                            <span class="truncate">S515</span>
-                        </div>
-                    </div>
-                    <div class="bg-indigo-700/50 rounded p-1.5 text-xs text-right min-h-[40px]" dir="rtl">
-                        <div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-indigo-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">محمود بكرى</span></div><div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-indigo-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">عبد الرحمن كمال</span></div>
-                    </div>
-                </div>
-                <div onclick="bringToFront(this)" class="stack-card bg-purple-600 text-white rounded-lg p-3 cursor-pointer border border-purple-700 shadow-lg hover:brightness-100" style="z-index: 40; top: 70px; transform: scale(0.85); filter: brightness(0.7); display: block;">
-                    <div class="flex flex-col mb-2">
-                        <div class="text-[10px] bg-white/20 text-white px-1.5 py-0.5 rounded shadow-sm font-bold whitespace-nowrap mb-1.5 w-fit flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>11:00 - 12:00 PM</div>
-                        <div class="flex justify-between items-start mb-1.5">
-                            <span class="font-bold text-sm tracking-tight truncate pl-1">PHY201 (5 | 15)</span>
-                            <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 6605 | 6616</span>
-                        </div>
-                        <div class="text-[11px] text-white/90 flex items-center gap-1 opacity-90">
-                            <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                            <span class="truncate">451 R MC</span>
-                        </div>
-                    </div>
-                    <div class="bg-purple-700/50 rounded p-1.5 text-xs text-right min-h-[40px]" dir="rtl">
-                        <div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-purple-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">دنيا عادل</span></div>
-                    </div>
-                </div>
-                <div onclick="bringToFront(this)" class="stack-card bg-purple-600 text-white rounded-lg p-3 cursor-pointer border border-purple-700 shadow-lg hover:brightness-100" style="z-index: 30; top: 84px; transform: scale(0.8200000000000001); filter: brightness(0.64); display: block;">
-                    <div class="flex flex-col mb-2">
-                        
-                        <div class="flex justify-between items-start mb-1.5">
-                            <span class="font-bold text-sm tracking-tight truncate pl-1">PHY201 (6)</span>
-                            <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 6606</span>
-                        </div>
-                        <div class="text-[11px] text-white/90 flex items-center gap-1 opacity-90">
-                            <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                            <span class="truncate">T509</span>
-                        </div>
-                    </div>
-                    <div class="bg-purple-700/50 rounded p-1.5 text-xs text-right min-h-[40px]" dir="rtl">
-                        <div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-purple-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">كريم يونس</span></div><div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-purple-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">عمر الكاشف</span></div>
-                    </div>
-                </div>
-                <div onclick="bringToFront(this)" class="stack-card bg-blue-600 text-white rounded-lg p-3 cursor-pointer border border-blue-700 shadow-lg hover:brightness-100" style="z-index: 20; top: 98px; transform: scale(0.79); filter: brightness(0.5800000000000001); display: block;">
-                    <div class="flex flex-col mb-2">
-                        
-                        <div class="flex justify-between items-start mb-1.5">
-                            <span class="font-bold text-sm tracking-tight truncate pl-1">PHYS.101 (C)</span>
-                            <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 1427</span>
-                        </div>
-                        <div class="text-[11px] text-white/90 flex items-center gap-1 opacity-90">
-                            <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                            <span class="truncate">304 LB PH</span>
-                        </div>
-                    </div>
-                    <div class="bg-blue-700/50 rounded p-1.5 text-xs text-right min-h-[40px]" dir="rtl">
-                        <div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-blue-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">إسراء عبد الرحمن</span></div><div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-blue-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">محمد عبد المعتمد</span></div>
-                    </div>
-                </div>
-                <div onclick="bringToFront(this)" class="stack-card bg-indigo-600 text-white rounded-lg p-3 cursor-pointer border border-indigo-700 shadow-lg hover:brightness-100" style="z-index: 10; top: 112px; transform: scale(0.76); filter: brightness(0.52); display: block;">
-                    <div class="flex flex-col mb-2">
-                        <div class="text-[10px] bg-white/20 text-white px-1.5 py-0.5 rounded shadow-sm font-bold whitespace-nowrap mb-1.5 w-fit flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>12:00 - 01:00 PM</div>
-                        <div class="flex justify-between items-start mb-1.5">
-                            <span class="font-bold text-sm tracking-tight truncate pl-1">PHY101 (11 | 12)</span>
-                            <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 6019 | 6020</span>
-                        </div>
-                        <div class="text-[11px] text-white/90 flex items-center gap-1 opacity-90">
-                            <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                            <span class="truncate">311 R SS</span>
-                        </div>
-                    </div>
-                    <div class="bg-indigo-700/50 rounded p-1.5 text-xs text-right min-h-[40px]" dir="rtl">
-                        <div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-indigo-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">اياد علاء الدين</span></div>
-                    </div>
-                </div>
-                <div onclick="bringToFront(this)" class="stack-card bg-purple-600 text-white rounded-lg p-3 cursor-pointer border border-purple-700 shadow-lg hover:brightness-100" style="z-index: 0; top: 126px; transform: scale(0.73); filter: brightness(0.45999999999999996); display: block;">
-                    <div class="flex flex-col mb-2">
-                        <div class="text-[10px] bg-white/20 text-white px-1.5 py-0.5 rounded shadow-sm font-bold whitespace-nowrap mb-1.5 w-fit flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>12:00 - 01:00 PM</div>
-                        <div class="flex justify-between items-start mb-1.5">
-                            <span class="font-bold text-sm tracking-tight truncate pl-1">PHY201 (7 | 16)</span>
-                            <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 6607 | 6618</span>
-                        </div>
-                        <div class="text-[11px] text-white/90 flex items-center gap-1 opacity-90">
-                            <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                            <span class="truncate">451 R MC</span>
-                        </div>
-                    </div>
-                    <div class="bg-purple-700/50 rounded p-1.5 text-xs text-right min-h-[40px]" dir="rtl">
-                        <div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-purple-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">دنيا عادل</span></div>
-                    </div>
-                </div></div></td><td class="p-3 border-l border-slate-200 align-top"><div class="relative w-full" style="min-height: 296px;">
-                <div onclick="bringToFront(this)" class="stack-card bg-slate-700 text-white rounded-lg p-3 cursor-pointer border border-slate-800 shadow-lg hover:brightness-100" style="z-index: 90; top: 0px; transform: scale(1.0); filter: brightness(1.0); display: block;">
-                    <div class="flex flex-col mb-2">
-                        
-                        <div class="flex justify-between items-start mb-1.5">
-                            <span class="font-bold text-sm tracking-tight truncate pl-1">AHST.104 (F)</span>
-                            <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: nan</span>
-                        </div>
-                        <div class="text-[11px] text-white/90 flex items-center gap-1 opacity-90">
-                            <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                            <span class="truncate">404 LB PH</span>
-                        </div>
-                    </div>
-                    <div class="bg-slate-800/50 rounded p-1.5 text-xs text-right min-h-[40px]" dir="rtl">
-                        <div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-slate-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">مصعب وليد</span></div>
-                    </div>
-                </div>
-                <div onclick="bringToFront(this)" class="stack-card bg-fuchsia-600 text-white rounded-lg p-3 cursor-pointer border border-fuchsia-700 shadow-lg hover:brightness-100" style="z-index: 80; top: 14px; transform: scale(0.97); filter: brightness(0.94); display: block;">
-                    <div class="flex flex-col mb-2">
-                        
-                        <div class="flex justify-between items-start mb-1.5">
-                            <span class="font-bold text-sm tracking-tight truncate pl-1">BPHYS101 (6)</span>
-                            <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 3771</span>
-                        </div>
-                        <div class="text-[11px] text-white/90 flex items-center gap-1 opacity-90">
-                            <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                            <span class="truncate">323 LB PH</span>
-                        </div>
-                    </div>
-                    <div class="bg-fuchsia-700/50 rounded p-1.5 text-xs text-right min-h-[40px]" dir="rtl">
-                        <div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-fuchsia-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">ايات علي</span></div><div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-fuchsia-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">بثينة عزت</span></div>
-                    </div>
-                </div>
-                <div onclick="bringToFront(this)" class="stack-card bg-indigo-600 text-white rounded-lg p-3 cursor-pointer border border-indigo-700 shadow-lg hover:brightness-100" style="z-index: 70; top: 28px; transform: scale(0.94); filter: brightness(0.88); display: block;">
-                    <div class="flex flex-col mb-2">
-                        
-                        <div class="flex justify-between items-start mb-1.5">
-                            <span class="font-bold text-sm tracking-tight truncate pl-1">PHY101 (10)</span>
-                            <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 6018</span>
-                        </div>
-                        <div class="text-[11px] text-white/90 flex items-center gap-1 opacity-90">
-                            <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                            <span class="truncate">S516</span>
-                        </div>
-                    </div>
-                    <div class="bg-indigo-700/50 rounded p-1.5 text-xs text-right min-h-[40px]" dir="rtl">
-                        <div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-indigo-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">سمر فتحي</span></div>
-                    </div>
-                </div>
-                <div onclick="bringToFront(this)" class="stack-card bg-indigo-600 text-white rounded-lg p-3 cursor-pointer border border-indigo-700 shadow-lg hover:brightness-100" style="z-index: 60; top: 42px; transform: scale(0.91); filter: brightness(0.8200000000000001); display: block;">
-                    <div class="flex flex-col mb-2">
-                        <div class="text-[10px] bg-white/20 text-white px-1.5 py-0.5 rounded shadow-sm font-bold whitespace-nowrap mb-1.5 w-fit flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>11:00 - 12:00 PM</div>
-                        <div class="flex justify-between items-start mb-1.5">
-                            <span class="font-bold text-sm tracking-tight truncate pl-1">PHY101 (7 | 8)</span>
-                            <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 6015 | 6016</span>
-                        </div>
-                        <div class="text-[11px] text-white/90 flex items-center gap-1 opacity-90">
-                            <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                            <span class="truncate">311 R SS</span>
-                        </div>
-                    </div>
-                    <div class="bg-indigo-700/50 rounded p-1.5 text-xs text-right min-h-[40px]" dir="rtl">
-                        <div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-indigo-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">اياد علاء الدين</span></div>
-                    </div>
-                </div>
-                <div onclick="bringToFront(this)" class="stack-card bg-indigo-600 text-white rounded-lg p-3 cursor-pointer border border-indigo-700 shadow-lg hover:brightness-100" style="z-index: 50; top: 56px; transform: scale(0.88); filter: brightness(0.76); display: block;">
-                    <div class="flex flex-col mb-2">
-                        
-                        <div class="flex justify-between items-start mb-1.5">
-                            <span class="font-bold text-sm tracking-tight truncate pl-1">PHY101 (9)</span>
-                            <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 6017</span>
-                        </div>
-                        <div class="text-[11px] text-white/90 flex items-center gap-1 opacity-90">
-                            <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                            <span class="truncate">S515</span>
-                        </div>
-                    </div>
-                    <div class="bg-indigo-700/50 rounded p-1.5 text-xs text-right min-h-[40px]" dir="rtl">
-                        <div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-indigo-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">محمود بكرى</span></div><div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-indigo-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">عبد الرحمن كمال</span></div>
-                    </div>
-                </div>
-                <div onclick="bringToFront(this)" class="stack-card bg-purple-600 text-white rounded-lg p-3 cursor-pointer border border-purple-700 shadow-lg hover:brightness-100" style="z-index: 40; top: 70px; transform: scale(0.85); filter: brightness(0.7); display: block;">
-                    <div class="flex flex-col mb-2">
-                        <div class="text-[10px] bg-white/20 text-white px-1.5 py-0.5 rounded shadow-sm font-bold whitespace-nowrap mb-1.5 w-fit flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>09:00 - 10:00 AM</div>
-                        <div class="flex justify-between items-start mb-1.5">
-                            <span class="font-bold text-sm tracking-tight truncate pl-1">PHY201 (1 | 2 | 22)</span>
-                            <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 6600 | 6602 | 8028</span>
-                        </div>
-                        <div class="text-[11px] text-white/90 flex items-center gap-1 opacity-90">
-                            <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                            <span class="truncate">451 R MC</span>
-                        </div>
-                    </div>
-                    <div class="bg-purple-700/50 rounded p-1.5 text-xs text-right min-h-[40px]" dir="rtl">
-                        <div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-purple-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">عمر الكاشف</span></div>
-                    </div>
-                </div>
-                <div onclick="bringToFront(this)" class="stack-card bg-purple-600 text-white rounded-lg p-3 cursor-pointer border border-purple-700 shadow-lg hover:brightness-100" style="z-index: 30; top: 84px; transform: scale(0.8200000000000001); filter: brightness(0.64); display: block;">
-                    <div class="flex flex-col mb-2">
-                        
-                        <div class="flex justify-between items-start mb-1.5">
-                            <span class="font-bold text-sm tracking-tight truncate pl-1">PHY201 (5)</span>
-                            <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: 6605</span>
-                        </div>
-                        <div class="text-[11px] text-white/90 flex items-center gap-1 opacity-90">
-                            <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                            <span class="truncate">T509</span>
-                        </div>
-                    </div>
-                    <div class="bg-purple-700/50 rounded p-1.5 text-xs text-right min-h-[40px]" dir="rtl">
-                        <div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-purple-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">دنيا عادل</span></div><div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-purple-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0
+                        <div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-blue-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">نيره ياسين</span></div><div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 text-blue-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="
