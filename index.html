@@ -37,16 +37,28 @@
         <!-- Header & Controls -->
         <div id="top-section" class="mb-4 flex flex-col xl:flex-row justify-between items-center gap-4">
             <div class="text-center xl:text-right">
-                <h1 class="text-3xl font-bold text-slate-900 mb-1">الجدول المعملي المجمع</h1>
+                <h1 class="text-3xl font-bold text-slate-900 mb-1">الجدول المعملي والتمارين المجمع</h1>
                 <p class="text-slate-500 font-medium">الفصل الدراسي الخريفي 2026-2027</p>
             </div>
-            <div id="controls" class="flex flex-wrap gap-2.5 items-center justify-center">
+            <div id="controls" class="flex flex-wrap gap-2 items-center justify-center">
+                <!-- فلتر نوع السكشن (عملي / مسائل) -->
+                <select id="type-filter" onchange="filterSchedule()" class="border-2 border-indigo-300 rounded-lg px-3 py-2 bg-indigo-50/60 text-indigo-900 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm cursor-pointer hover:border-indigo-400 transition-colors">
+                    <option value="">⚡ الكل (عملي + مسائل)</option>
+                    <option value="lab">🔬 سكاشن العملي (ساعتان)</option>
+                    <option value="tut">📝 سكاشن المسائل (ساعة)</option>
+                </select>
+
+                <!-- فلتر المادة -->
                 <select id="course-filter" onchange="filterSchedule()" class="border-2 border-slate-300 rounded-lg px-3 py-2 bg-white text-slate-700 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm cursor-pointer hover:border-blue-400 transition-colors">
                     <option value="">📚 كل المواد (All Courses)</option>
                 </select>
+
+                <!-- فلتر القاعة -->
                 <select id="loc-filter" onchange="filterSchedule()" class="border-2 border-slate-300 rounded-lg px-3 py-2 bg-white text-slate-700 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm cursor-pointer hover:border-blue-400 transition-colors">
                     <option value="">📍 كل القاعات (All Rooms)</option>
                 </select>
+
+                <!-- فلتر المعيد -->
                 <select id="ta-filter" onchange="filterSchedule()" class="border-2 border-slate-300 rounded-lg px-3 py-2 bg-white text-slate-700 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm cursor-pointer hover:border-blue-400 transition-colors">
                     <option value="">👨‍🏫 عرض الكل (All Instructors)</option>
                     <option value="د. محمد علي">د. محمد علي</option>
@@ -75,34 +87,43 @@
                     <option value="يوسف اسامه">يوسف اسامه</option>
                     <option value="يوسف كمال">يوسف كمال</option>
                 </select>
-                <button onclick="resetFilters()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-2 px-4 rounded-lg text-sm transition-colors">إعادة ضبط ↺</button>
-                <a href="#matrix-section" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg shadow-sm text-sm transition-colors">
+
+                <button onclick="resetFilters()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-2 px-3.5 rounded-lg text-sm transition-colors">إعادة ضبط ↺</button>
+                <a href="#matrix-section" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-3.5 rounded-lg shadow-sm text-sm transition-colors">
                     📊 مصفوفة المعيدين
                 </a>
-                <button onclick="window.print()" class="bg-slate-800 hover:bg-slate-900 text-white font-bold py-2 px-4 rounded-lg shadow-md text-sm transition-colors flex items-center gap-1.5">
+                <button onclick="window.print()" class="bg-slate-800 hover:bg-slate-900 text-white font-bold py-2 px-3.5 rounded-lg shadow-md text-sm transition-colors flex items-center gap-1.5">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                     حفظ PDF
                 </button>
             </div>
         </div>
 
-        <!-- Live Stats Bar -->
-        <div id="stats-bar" class="mb-5 grid grid-cols-2 md:grid-cols-4 gap-3 bg-white p-3.5 rounded-xl shadow-sm border border-slate-200 text-center">
+        <!-- Live Stats Bar (مفصل: عملي vs مسائل) -->
+        <div id="stats-bar" class="mb-5 grid grid-cols-2 md:grid-cols-5 gap-3 bg-white p-3.5 rounded-xl shadow-sm border border-slate-200 text-center">
             <div class="p-2 bg-slate-50 rounded-lg border border-slate-100">
-                <div class="text-xs text-slate-500 font-bold mb-0.5">السكاشن المعروضة (Visible Sections)</div>
-                <div id="stat-sections" class="text-xl font-extrabold text-blue-600 en-text">0</div>
+                <div class="text-xs text-slate-500 font-bold mb-0.5">إجمالي السكاشن (Sections)</div>
+                <div id="stat-sections" class="text-lg font-extrabold text-slate-800 en-text">0</div>
+                <div id="stat-sections-sub" class="text-[11px] text-slate-500 font-semibold mt-0.5">0 عملي | 0 مسائل</div>
             </div>
-            <div class="p-2 bg-slate-50 rounded-lg border border-slate-100">
-                <div class="text-xs text-slate-500 font-bold mb-0.5">إجمالي الساعات الزمنية (Slot Hours)</div>
-                <div id="stat-hours" class="text-xl font-extrabold text-emerald-600 en-text">0 Hrs</div>
+            <div class="p-2 bg-blue-50/50 rounded-lg border border-blue-100">
+                <div class="text-xs text-blue-700 font-bold mb-0.5">🔬 ساعات العملي (Lab Hrs)</div>
+                <div id="stat-lab-hours" class="text-xl font-extrabold text-blue-600 en-text">0 Hrs</div>
+                <div class="text-[10px] text-blue-500 font-semibold">السكشن = ساعتان</div>
             </div>
-            <div class="p-2 bg-slate-50 rounded-lg border border-slate-100">
-                <div class="text-xs text-slate-500 font-bold mb-0.5">الأيام النشطة (Active Days)</div>
-                <div id="stat-days" class="text-xl font-extrabold text-violet-600 en-text">0 Days</div>
+            <div class="p-2 bg-amber-50/60 rounded-lg border border-amber-200/70">
+                <div class="text-xs text-amber-800 font-bold mb-0.5">📝 ساعات المسائل (Tut Hrs)</div>
+                <div id="stat-tut-hours" class="text-xl font-extrabold text-amber-600 en-text">0 Hrs</div>
+                <div class="text-[10px] text-amber-600 font-semibold">السكشن = ساعة واحدة</div>
             </div>
-            <div class="p-2 bg-slate-50 rounded-lg border border-slate-100">
+            <div class="p-2 bg-emerald-50/50 rounded-lg border border-emerald-100">
+                <div class="text-xs text-emerald-800 font-bold mb-0.5">إجمالي الساعات والأيام</div>
+                <div id="stat-total-hours" class="text-lg font-extrabold text-emerald-600 en-text">0 Hrs</div>
+                <div id="stat-days" class="text-[11px] text-violet-700 font-bold en-text">0 Days</div>
+            </div>
+            <div class="p-2 bg-slate-50 rounded-lg border border-slate-100 col-span-2 md:col-span-1 flex flex-col justify-center">
                 <div class="text-xs text-slate-500 font-bold mb-0.5">حالة الفلتر (Active Filter)</div>
-                <div id="stat-filter-label" class="text-sm font-bold text-slate-700 truncate mt-1">عرض الجدول بالكامل</div>
+                <div id="stat-filter-label" class="text-xs font-bold text-slate-700 truncate mt-1">عرض الجدول بالكامل</div>
             </div>
         </div>
 
@@ -127,15 +148,23 @@
 
         <!-- Course-TAs Matrix Section -->
         <div id="matrix-section" class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden p-5">
-            <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-4">
+            <div class="flex flex-col lg:flex-row justify-between items-center gap-4 mb-4">
                 <div>
-                    <h2 class="text-2xl font-bold text-slate-900">📊 مصفوفة توزيع المقررات على المعيدين (Course–TA Matrix)</h2>
-                    <p class="text-xs text-slate-500 font-medium mt-0.5">اضغط على أي رقم لفلترة الجدول العلوي، أو اضغط على اسم المعيد / المقرر لعرض جدوله الكامل</p>
+                    <h2 class="text-2xl font-bold text-slate-900">📊 مصفوفة توزيع المقررات على المعيدين (تفصيل العملي والمسائل)</h2>
+                    <p class="text-xs text-slate-500 font-medium mt-0.5">اضغط على أي خلية لفلترة الجدول العلوي بالمعيد والمقرر والنوع (عملي 🔬 أو مسائل 📝)</p>
                 </div>
-                <div id="matrix-controls" class="flex bg-slate-100 p-1 rounded-lg border border-slate-200">
-                    <button onclick="setMatrixMode('hours')" id="btn-mode-hours" class="px-3 py-1.5 rounded-md text-xs font-bold transition-colors bg-slate-800 text-white shadow-sm">الساعات (Hours)</button>
-                    <button onclick="setMatrixMode('sections')" id="btn-mode-sections" class="px-3 py-1.5 rounded-md text-xs font-bold transition-colors text-slate-600 hover:text-slate-900">السكاشن (Sections)</button>
-                    <button onclick="setMatrixMode('both')" id="btn-mode-both" class="px-3 py-1.5 rounded-md text-xs font-bold transition-colors text-slate-600 hover:text-slate-900">مفصل (Hrs + Sec)</button>
+                <div id="matrix-controls" class="flex flex-wrap gap-2 items-center">
+                    <!-- زر فصل أو دمج أعمدة العملي والمسائل -->
+                    <button onclick="toggleSplitColumns()" id="btn-split-cols" class="px-3 py-1.5 rounded-lg text-xs font-bold border-2 border-indigo-600 bg-indigo-600 text-white shadow-sm transition-colors">
+                        🔀 فصل أعمدة (العملي / المسائل): مفعل
+                    </button>
+
+                    <!-- أزرار وضع العرض -->
+                    <div class="flex bg-slate-100 p-1 rounded-lg border border-slate-200">
+                        <button onclick="setMatrixMode('hours')" id="btn-mode-hours" class="px-3 py-1.5 rounded-md text-xs font-bold transition-colors bg-slate-800 text-white shadow-sm">الساعات (Hours)</button>
+                        <button onclick="setMatrixMode('sections')" id="btn-mode-sections" class="px-3 py-1.5 rounded-md text-xs font-bold transition-colors text-slate-600 hover:text-slate-900">السكاشن (Sections)</button>
+                        <button onclick="setMatrixMode('both')" id="btn-mode-both" class="px-3 py-1.5 rounded-md text-xs font-bold transition-colors text-slate-600 hover:text-slate-900">مفصل (Hrs + Sec)</button>
+                    </div>
                 </div>
             </div>
 
@@ -150,7 +179,7 @@
     </div>
 
     <script>
-        // مصفوفة البيانات الكاملة لجميع الأيام الـ 6 (140 سكشن بالكامل)
+        // قاعدة البيانات الكاملة للأيام الستة (السكاشن التي تحتوي على خاصية t مدتها ساعة واحدة = سكاشن مسائل)
         const SCHEDULE_DATA = [
             { day: "Saturday", periods: [
                 [
@@ -434,6 +463,7 @@
         };
 
         let currentMatrixMode = 'hours'; // 'hours' | 'sections' | 'both'
+        let splitCourseTypes = true;     // true = فصل أعمدة العملي عن المسائل في المصفوفة
 
         function buildTable() {
             const tbody = document.getElementById('schedule-tbody');
@@ -448,23 +478,33 @@
                         html += `<td class="p-3 border-l border-slate-200 align-top bg-slate-50/50"></td>`;
                         return;
                     }
-                    const minH = 170 + (cards.length - 1) * 14;
+                    const minH = 175 + (cards.length - 1) * 14;
                     html += `<td class="p-3 border-l border-slate-200 align-top"><div class="relative w-full" style="min-height: ${minH}px;">`;
                     cards.forEach((card, cIdx) => {
                         const baseCourse = card.c.split(' (')[0].trim();
+                        const isTut = Boolean(card.t); // إذا كان له وقت فرعي مدته ساعة فهو سكشن مسائل
+                        const secType = isTut ? 'tut' : 'lab';
                         const [bg, border, subBg, icon] = COLORS[baseCourse] || COLORS['AHST.104'];
                         const z = (cards.length - 1 - cIdx) * 10;
                         const top = cIdx * 14;
                         const scale = (1 - cIdx * 0.03).toFixed(2);
                         const bright = (1 - cIdx * 0.06).toFixed(2);
                         
-                        const timeBadge = card.t ? `<div class="text-[10px] bg-white/20 text-white px-1.5 py-0.5 rounded shadow-sm font-bold whitespace-nowrap mb-1.5 w-fit flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>${card.t}</div>` : '';
+                        const typeBadge = isTut 
+                            ? `<div class="flex items-center justify-between gap-1 mb-1.5">
+                                <span class="text-[10px] bg-amber-400/90 text-slate-900 px-1.5 py-0.5 rounded font-extrabold font-[Cairo]">📝 مسائل (1h)</span>
+                                <span class="text-[10px] bg-white/20 text-white px-1.5 py-0.5 rounded font-bold whitespace-nowrap">${card.t}</span>
+                               </div>`
+                            : `<div class="flex items-center justify-between gap-1 mb-1.5">
+                                <span class="text-[10px] bg-white/20 text-white px-1.5 py-0.5 rounded font-bold font-[Cairo]">🔬 عملي (2h)</span>
+                               </div>`;
+
                         const tasHtml = card.tas.map(ta => `<div class="flex items-center gap-1.5 mb-1.5"><svg class="w-3.5 h-3.5 ${icon} flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="font-medium font-[Cairo] truncate">${ta}</span></div>`).join('');
 
-                        html += `<div onclick="bringToFront(this)" class="stack-card ${bg} text-white rounded-lg p-3 cursor-pointer border ${border} shadow-lg hover:brightness-100" style="z-index: ${z}; top: ${top}px; transform: scale(${scale}); filter: brightness(${bright}); display: block;">
+                        html += `<div onclick="bringToFront(this)" data-type="${secType}" data-course="${baseCourse}" data-loc="${card.loc}" class="stack-card ${bg} text-white rounded-lg p-3 cursor-pointer border ${border} shadow-lg hover:brightness-100" style="z-index: ${z}; top: ${top}px; transform: scale(${scale}); filter: brightness(${bright}); display: block;">
                             <div class="flex flex-col mb-2">
-                                ${timeBadge}
-                                <div class="flex justify-between items-start mb-1.5">
+                                ${typeBadge}
+                                <div class="flex justify-between items-start mb-1">
                                     <span class="font-bold text-sm tracking-tight truncate pl-1">${card.c}</span>
                                     <span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded shadow-inner font-medium whitespace-nowrap">CRN: ${card.crn}</span>
                                 </div>
@@ -483,6 +523,19 @@
             tbody.innerHTML = html;
         }
 
+        function toggleSplitColumns() {
+            splitCourseTypes = !splitCourseTypes;
+            const btn = document.getElementById('btn-split-cols');
+            if (splitCourseTypes) {
+                btn.className = "px-3 py-1.5 rounded-lg text-xs font-bold border-2 border-indigo-600 bg-indigo-600 text-white shadow-sm transition-colors";
+                btn.innerText = "🔀 فصل أعمدة (العملي / المسائل): مفعل";
+            } else {
+                btn.className = "px-3 py-1.5 rounded-lg text-xs font-bold border-2 border-slate-300 bg-white text-slate-700 hover:bg-slate-50 transition-colors";
+                btn.innerText = "🔀 فصل أعمدة (العملي / المسائل): مدمج";
+            }
+            buildMatrix();
+        }
+
         function setMatrixMode(mode) {
             currentMatrixMode = mode;
             ['hours', 'sections', 'both'].forEach(m => {
@@ -496,17 +549,20 @@
             buildMatrix();
         }
 
-        function selectFromMatrix(ta, course) {
+        function selectFromMatrix(ta, course, secType) {
             document.getElementById('ta-filter').value = ta || "";
             document.getElementById('course-filter').value = course || "";
+            document.getElementById('type-filter').value = secType || "";
             document.getElementById('loc-filter').value = "";
             filterSchedule();
             document.getElementById('top-section').scrollIntoView({ behavior: 'smooth' });
         }
 
         function buildMatrix() {
-            const coursesSet = new Set();
+            const columnKeysSet = new Set();
+            const columnMeta = {};
             const tasList = [];
+
             document.querySelectorAll('#ta-filter option').forEach(opt => {
                 if (opt.value) tasList.push(opt.value);
             });
@@ -515,7 +571,17 @@
                 dayObj.periods.forEach(cards => {
                     cards.forEach(card => {
                         const baseCourse = card.c.split(' (')[0].trim();
-                        coursesSet.add(baseCourse);
+                        const isTut = Boolean(card.t);
+                        const secType = isTut ? 'tut' : 'lab';
+                        const colKey = splitCourseTypes ? `${baseCourse}__${secType}` : baseCourse;
+
+                        columnKeysSet.add(colKey);
+                        columnMeta[colKey] = {
+                            course: baseCourse,
+                            type: splitCourseTypes ? secType : '',
+                            label: splitCourseTypes ? `${baseCourse} (${isTut ? 'مسائل 📝' : 'عملي 🔬'})` : baseCourse
+                        };
+
                         card.tas.forEach(ta => {
                             if (!tasList.includes(ta)) tasList.push(ta);
                         });
@@ -523,30 +589,47 @@
                 });
             });
 
-            const courses = Array.from(coursesSet).sort();
+            const colKeys = Array.from(columnKeysSet).sort();
             const stats = {};
             tasList.forEach(ta => {
-                stats[ta] = { totalHours: 0, totalSecs: 0, days: new Set(), courses: {} };
-                courses.forEach(c => stats[ta].courses[c] = { hours: 0, secs: 0 });
+                stats[ta] = {
+                    labHours: 0, labSecs: 0,
+                    tutHours: 0, tutSecs: 0,
+                    totalHours: 0, totalSecs: 0,
+                    days: new Set(),
+                    cols: {}
+                };
+                colKeys.forEach(k => stats[ta].cols[k] = { hours: 0, secs: 0 });
             });
 
-            const courseTotals = {};
-            courses.forEach(c => courseTotals[c] = { hours: 0, secs: 0 });
+            const colTotals = {};
+            colKeys.forEach(k => colTotals[k] = { hours: 0, secs: 0 });
 
             SCHEDULE_DATA.forEach(dayObj => {
                 dayObj.periods.forEach(cards => {
                     cards.forEach(card => {
                         const baseCourse = card.c.split(' (')[0].trim();
-                        const dur = card.t ? 1 : 2;
+                        const isTut = Boolean(card.t);
+                        const secType = isTut ? 'tut' : 'lab';
+                        const dur = isTut ? 1 : 2;
+                        const colKey = splitCourseTypes ? `${baseCourse}__${secType}` : baseCourse;
+
                         card.tas.forEach(ta => {
                             if (stats[ta]) {
-                                stats[ta].courses[baseCourse].hours += dur;
-                                stats[ta].courses[baseCourse].secs += 1;
+                                stats[ta].cols[colKey].hours += dur;
+                                stats[ta].cols[colKey].secs += 1;
+                                if (isTut) {
+                                    stats[ta].tutHours += dur;
+                                    stats[ta].tutSecs += 1;
+                                } else {
+                                    stats[ta].labHours += dur;
+                                    stats[ta].labSecs += 1;
+                                }
                                 stats[ta].totalHours += dur;
                                 stats[ta].totalSecs += 1;
                                 stats[ta].days.add(dayObj.day);
-                                courseTotals[baseCourse].hours += dur;
-                                courseTotals[baseCourse].secs += 1;
+                                colTotals[colKey].hours += dur;
+                                colTotals[colKey].secs += 1;
                             }
                         });
                     });
@@ -555,44 +638,59 @@
 
             const activeTA = document.getElementById('ta-filter').value;
             const activeCourse = document.getElementById('course-filter').value;
+            const activeType = document.getElementById('type-filter').value;
 
             // Header
             let theadHtml = `<tr class="bg-slate-800 text-white">
                 <th class="py-3 px-2 border border-slate-700 w-10">#</th>
                 <th class="py-3 px-3 border border-slate-700 text-right min-w-[160px] sticky right-0 z-10 bg-slate-900">اسم المعيد (Instructor)</th>`;
             
-            courses.forEach(c => {
-                const [bg] = COLORS[c] || ['bg-slate-700'];
-                const isSelectedCourse = activeCourse === c ? 'ring-2 ring-yellow-400' : '';
-                theadHtml += `<th onclick="selectFromMatrix('', '${c}')" title="اضغط لفلترة ${c}" class="py-3 px-2 border border-slate-700 en-text cursor-pointer hover:brightness-110 transition-all ${bg} ${isSelectedCourse}">${c}</th>`;
+            colKeys.forEach(k => {
+                const meta = columnMeta[k];
+                const [bg] = COLORS[meta.course] || ['bg-slate-700'];
+                const isSelected = (activeCourse === meta.course && (!meta.type || activeType === meta.type)) ? 'ring-2 ring-yellow-400' : '';
+                const subBadge = meta.type === 'tut' 
+                    ? `<div class="text-[10px] bg-amber-300 text-slate-900 px-1 rounded mt-0.5 font-[Cairo] font-bold">📝 مسائل (1h)</div>`
+                    : (meta.type === 'lab' ? `<div class="text-[10px] bg-white/20 text-white px-1 rounded mt-0.5 font-[Cairo]">🔬 عملي (2h)</div>` : '');
+
+                theadHtml += `<th onclick="selectFromMatrix('', '${meta.course}', '${meta.type}')" title="اضغط للفلترة" class="py-2.5 px-2 border border-slate-700 en-text cursor-pointer hover:brightness-110 transition-all ${bg} ${isSelected}">
+                    <div>${meta.course}</div>
+                    ${subBadge}
+                </th>`;
             });
 
             theadHtml += `
+                <th onclick="selectFromMatrix('', '', 'lab')" class="py-3 px-2 border border-slate-700 bg-blue-900 cursor-pointer hover:bg-blue-800" title="عرض كل العملي">🔬 ساعات العملي<br><span class="text-[10px] text-blue-200 font-normal">Lab Load</span></th>
+                <th onclick="selectFromMatrix('', '', 'tut')" class="py-3 px-2 border border-slate-700 bg-amber-700 cursor-pointer hover:bg-amber-600" title="عرض كل المسائل">📝 ساعات المسائل<br><span class="text-[10px] text-amber-100 font-normal">Tut Load</span></th>
+                <th class="py-3 px-2 border border-slate-700 bg-slate-900">إجمالي الساعات<br><span class="text-[10px] text-slate-300 font-normal">Total Hrs</span></th>
                 <th class="py-3 px-2 border border-slate-700 bg-slate-900">إجمالي السكاشن</th>
-                <th class="py-3 px-2 border border-slate-700 bg-slate-900">إجمالي الساعات</th>
                 <th class="py-3 px-2 border border-slate-700 bg-slate-900">الأيام</th>
             </tr>`;
             document.getElementById('matrix-thead').innerHTML = theadHtml;
 
             // Body
             let tbodyHtml = '';
-            let grandHours = 0;
-            let grandSecs = 0;
+            let grandLabHours = 0, grandTutHours = 0, grandHours = 0, grandSecs = 0;
 
             tasList.forEach((ta, idx) => {
                 const st = stats[ta];
+                grandLabHours += st.labHours;
+                grandTutHours += st.tutHours;
                 grandHours += st.totalHours;
                 grandSecs += st.totalSecs;
+
                 const isSelectedTA = activeTA === ta;
                 const rowCls = isSelectedTA ? 'bg-blue-50/90 font-bold' : (idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/60');
 
                 tbodyHtml += `<tr class="${rowCls} hover:bg-blue-50/50 transition-colors border-b border-slate-200">
                     <td class="py-2.5 px-2 border border-slate-200 text-slate-400 font-bold en-text">${idx + 1}</td>
-                    <td onclick="selectFromMatrix('${ta}', '')" title="اضغط لعرض جدول ${ta}" class="py-2.5 px-3 border border-slate-200 text-right font-bold text-slate-800 cursor-pointer hover:text-blue-600 sticky right-0 z-10 ${isSelectedTA ? 'bg-blue-100' : 'bg-white'}">${ta}</td>`;
+                    <td onclick="selectFromMatrix('${ta}', '', '')" title="اضغط لعرض جدول ${ta}" class="py-2.5 px-3 border border-slate-200 text-right font-bold text-slate-800 cursor-pointer hover:text-blue-600 sticky right-0 z-10 ${isSelectedTA ? 'bg-blue-100' : 'bg-white'}">${ta}</td>`;
 
-                courses.forEach(c => {
-                    const cellData = st.courses[c];
-                    const isHighlighted = (activeTA === ta && activeCourse === c);
+                colKeys.forEach(k => {
+                    const meta = columnMeta[k];
+                    const cellData = st.cols[k];
+                    const isHighlighted = (activeTA === ta && activeCourse === meta.course && (!meta.type || activeType === meta.type));
+                    
                     if (cellData.hours === 0) {
                         tbodyHtml += `<td class="py-2.5 px-2 border border-slate-200 text-slate-300 en-text">-</td>`;
                     } else {
@@ -601,16 +699,19 @@
                         else if (currentMatrixMode === 'sections') displayVal = `${cellData.secs}`;
                         else displayVal = `${cellData.hours}h <span class="text-[10px] text-slate-500">(${cellData.secs})</span>`;
 
-                        tbodyHtml += `<td onclick="selectFromMatrix('${ta}', '${c}')" title="${ta} - ${c}: ${cellData.hours} ساعة (${cellData.secs} سكشن)" class="py-2 px-1.5 border border-slate-200 en-text cursor-pointer hover:bg-blue-100 transition-colors ${isHighlighted ? 'bg-amber-100 ring-2 ring-amber-400' : 'bg-emerald-50/70'}">
+                        const cellBg = meta.type === 'tut' ? 'bg-amber-50/80 hover:bg-amber-100' : 'bg-emerald-50/70 hover:bg-blue-100';
+                        tbodyHtml += `<td onclick="selectFromMatrix('${ta}', '${meta.course}', '${meta.type}')" title="${ta} - ${meta.label}: ${cellData.hours} ساعة (${cellData.secs} سكشن)" class="py-2 px-1.5 border border-slate-200 en-text cursor-pointer transition-colors ${isHighlighted ? 'bg-amber-200 ring-2 ring-amber-500' : cellBg}">
                             <span class="font-extrabold text-slate-800">${displayVal}</span>
                         </td>`;
                     }
                 });
 
-                const loadColor = st.totalHours === 0 ? 'text-rose-600 bg-rose-50' : 'text-emerald-700 bg-emerald-50';
+                const loadColor = st.totalHours === 0 ? 'text-rose-600 bg-rose-50' : 'text-emerald-800 bg-emerald-100/70';
                 tbodyHtml += `
-                    <td class="py-2.5 px-2 border border-slate-200 font-bold text-blue-700 bg-blue-50/40 en-text">${st.totalSecs}</td>
+                    <td onclick="selectFromMatrix('${ta}', '', 'lab')" class="py-2.5 px-2 border border-slate-200 font-bold text-blue-700 bg-blue-50/50 cursor-pointer hover:bg-blue-100 en-text" title="عرض سكاشن العملي لـ ${ta}">${st.labHours}h <span class="text-[10px] text-slate-500">(${st.labSecs})</span></td>
+                    <td onclick="selectFromMatrix('${ta}', '', 'tut')" class="py-2.5 px-2 border border-slate-200 font-bold text-amber-800 bg-amber-50/60 cursor-pointer hover:bg-amber-100 en-text" title="عرض سكاشن المسائل لـ ${ta}">${st.tutHours}h <span class="text-[10px] text-slate-500">(${st.tutSecs})</span></td>
                     <td class="py-2.5 px-2 border border-slate-200 font-extrabold ${loadColor} en-text">${st.totalHours} Hrs</td>
+                    <td class="py-2.5 px-2 border border-slate-200 font-bold text-slate-700 en-text">${st.totalSecs}</td>
                     <td class="py-2.5 px-2 border border-slate-200 font-bold text-violet-700 en-text">${st.days.size}</td>
                 </tr>`;
             });
@@ -618,18 +719,20 @@
 
             // Footer Totals
             let tfootHtml = `<tr class="bg-slate-800 text-white font-bold en-text">
-                <td colspan="2" class="py-3 px-3 border border-slate-700 text-right font-[Cairo]">الإجمالي الكلي للمقرر (Course Totals)</td>`;
+                <td colspan="2" class="py-3 px-3 border border-slate-700 text-right font-[Cairo]">إجمالي الساعات التكرارية (Total TA Load)</td>`;
             
-            courses.forEach(c => {
-                const ct = courseTotals[c];
+            colKeys.forEach(k => {
+                const ct = colTotals[k];
                 let displayTot = currentMatrixMode === 'sections' ? `${ct.secs} Sec` : `${ct.hours}h`;
                 if (currentMatrixMode === 'both') displayTot = `${ct.hours}h (${ct.secs})`;
                 tfootHtml += `<td class="py-3 px-1.5 border border-slate-700 text-amber-300">${displayTot}</td>`;
             });
 
             tfootHtml += `
-                <td class="py-3 px-2 border border-slate-700 text-blue-300">${grandSecs}</td>
+                <td class="py-3 px-2 border border-slate-700 text-blue-300">${grandLabHours} Hrs</td>
+                <td class="py-3 px-2 border border-slate-700 text-amber-300">${grandTutHours} Hrs</td>
                 <td class="py-3 px-2 border border-slate-700 text-emerald-300">${grandHours} Hrs</td>
+                <td class="py-3 px-2 border border-slate-700 text-slate-300">${grandSecs}</td>
                 <td class="py-3 px-2 border border-slate-700">-</td>
             </tr>`;
             document.getElementById('matrix-tfoot').innerHTML = tfootHtml;
@@ -639,10 +742,8 @@
             const courses = new Set();
             const locations = new Set();
             document.querySelectorAll('.stack-card').forEach(card => {
-                const titleSpan = card.querySelector('span.font-bold.text-sm');
-                if (titleSpan) courses.add(titleSpan.innerText.split(' (')[0].trim());
-                const locSpan = card.querySelector('.loc-name');
-                if (locSpan) locations.add(locSpan.innerText.trim());
+                courses.add(card.getAttribute('data-course'));
+                locations.add(card.getAttribute('data-loc'));
             });
             const courseSelect = document.getElementById('course-filter');
             Array.from(courses).sort().forEach(c => {
@@ -670,6 +771,7 @@
         }
 
         function resetFilters() {
+            document.getElementById('type-filter').value = "";
             document.getElementById('course-filter').value = "";
             document.getElementById('loc-filter').value = "";
             document.getElementById('ta-filter').value = "";
@@ -677,40 +779,54 @@
         }
 
         function filterSchedule() {
+            const secType = document.getElementById('type-filter').value;
             const taName = document.getElementById('ta-filter').value;
             const courseName = document.getElementById('course-filter').value;
             const locName = document.getElementById('loc-filter').value;
             const allCards = document.querySelectorAll('.stack-card');
             
-            let visibleCount = 0; let totalHours = 0; const activeDays = new Set();
+            let labCount = 0, tutCount = 0;
+            let labHours = 0, tutHours = 0;
+            const activeDays = new Set();
 
             allCards.forEach(card => {
-                const titleSpan = card.querySelector('span.font-bold.text-sm');
-                const cardCourseText = titleSpan ? titleSpan.innerText.split(' (')[0].trim() : '';
-                const locSpan = card.querySelector('.loc-name');
-                const cardLocText = locSpan ? locSpan.innerText.trim() : '';
+                const cardType = card.getAttribute('data-type');
+                const cardCourse = card.getAttribute('data-course');
+                const cardLoc = card.getAttribute('data-loc');
 
+                const matchesType = (secType === "" || cardType === secType);
                 const matchesTA = (taName === "" || card.innerText.includes(taName));
-                const matchesCourse = (courseName === "" || cardCourseText === courseName);
-                const matchesLoc = (locName === "" || cardLocText === locName);
+                const matchesCourse = (courseName === "" || cardCourse === courseName);
+                const matchesLoc = (locName === "" || cardLoc === locName);
 
-                if (matchesTA && matchesCourse && matchesLoc) {
-                    card.style.display = 'block'; card.classList.remove('hidden-by-filter');
-                    visibleCount++;
-                    const hasOneHourBadge = card.querySelector('.bg-white\\/20') !== null;
-                    totalHours += hasOneHourBadge ? 1 : 2;
+                if (matchesType && matchesTA && matchesCourse && matchesLoc) {
+                    card.style.display = 'block';
+                    card.classList.remove('hidden-by-filter');
+                    if (cardType === 'tut') {
+                        tutCount++;
+                        tutHours += 1;
+                    } else {
+                        labCount++;
+                        labHours += 2;
+                    }
                     const row = card.closest('tr');
                     if (row) activeDays.add(row.querySelector('td:first-child').innerText.trim());
                 } else {
-                    card.style.display = 'none'; card.classList.add('hidden-by-filter');
+                    card.style.display = 'none';
+                    card.classList.add('hidden-by-filter');
                 }
             });
             
-            document.getElementById('stat-sections').innerText = visibleCount;
-            document.getElementById('stat-hours').innerText = totalHours + ' Hrs';
+            document.getElementById('stat-sections').innerText = (labCount + tutCount) + ' Sec';
+            document.getElementById('stat-sections-sub').innerText = `${labCount} عملي | ${tutCount} مسائل`;
+            document.getElementById('stat-lab-hours').innerText = labHours + ' Hrs';
+            document.getElementById('stat-tut-hours').innerText = tutHours + ' Hrs';
+            document.getElementById('stat-total-hours').innerText = (labHours + tutHours) + ' Hrs';
             document.getElementById('stat-days').innerText = activeDays.size + ' Days';
 
             const activeFilters = [];
+            if (secType === 'lab') activeFilters.push('🔬 عملي فقط');
+            if (secType === 'tut') activeFilters.push('📝 مسائل فقط');
             if (courseName) activeFilters.push(courseName);
             if (locName) activeFilters.push(locName);
             if (taName) activeFilters.push(taName);
@@ -718,7 +834,7 @@
 
             document.querySelectorAll('td .relative').forEach(container => {
                 let visibleCards = Array.from(container.querySelectorAll('.stack-card')).filter(c => c.style.display !== 'none');
-                container.style.minHeight = visibleCards.length === 0 ? '50px' : (170 + (visibleCards.length - 1) * 14) + 'px';
+                container.style.minHeight = visibleCards.length === 0 ? '50px' : (175 + (visibleCards.length - 1) * 14) + 'px';
                 applyStackStyles(visibleCards);
             });
 
