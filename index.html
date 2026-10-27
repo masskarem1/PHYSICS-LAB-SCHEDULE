@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Lab Schedule</title>
+    <title>Interactive Lab Schedule & TA Matrix</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -16,7 +16,7 @@
         @media print {
             @page { size: landscape; margin: 5mm; }
             body { background: #fff !important; padding: 0 !important; margin: 0 !important; }
-            #controls { display: none !important; }
+            #controls, #matrix-controls { display: none !important; }
             #stats-bar { margin-bottom: 10px !important; box-shadow: none !important; }
             .max-w-\[95\%\] { max-width: 100% !important; width: 100% !important; margin: 0 !important; }
             .shadow-xl, .shadow-md, .shadow-lg, .shadow-sm { box-shadow: none !important; border: 1px solid #cbd5e1 !important; }
@@ -27,13 +27,15 @@
             td .relative { min-height: auto !important; height: auto !important; display: flex !important; flex-direction: column !important; gap: 6px !important; position: static !important; }
             .stack-card { position: relative !important; top: 0 !important; transform: none !important; filter: none !important; page-break-inside: avoid; margin-bottom: 4px; opacity: 1 !important; display: block !important; }
             .stack-card.hidden-by-filter { display: none !important; }
+            #matrix-section { page-break-before: always; }
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
     </style>
 </head>
 <body class="text-slate-800 antialiased p-4 md:p-8">
     <div class="max-w-[95%] mx-auto">
-        <div class="mb-4 flex flex-col xl:flex-row justify-between items-center gap-4">
+        <!-- Header & Controls -->
+        <div id="top-section" class="mb-4 flex flex-col xl:flex-row justify-between items-center gap-4">
             <div class="text-center xl:text-right">
                 <h1 class="text-3xl font-bold text-slate-900 mb-1">الجدول المعملي المجمع</h1>
                 <p class="text-slate-500 font-medium">الفصل الدراسي الخريفي 2026-2027</p>
@@ -74,6 +76,9 @@
                     <option value="يوسف كمال">يوسف كمال</option>
                 </select>
                 <button onclick="resetFilters()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-2 px-4 rounded-lg text-sm transition-colors">إعادة ضبط ↺</button>
+                <a href="#matrix-section" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg shadow-sm text-sm transition-colors">
+                    📊 مصفوفة المعيدين
+                </a>
                 <button onclick="window.print()" class="bg-slate-800 hover:bg-slate-900 text-white font-bold py-2 px-4 rounded-lg shadow-md text-sm transition-colors flex items-center gap-1.5">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                     حفظ PDF
@@ -81,6 +86,7 @@
             </div>
         </div>
 
+        <!-- Live Stats Bar -->
         <div id="stats-bar" class="mb-5 grid grid-cols-2 md:grid-cols-4 gap-3 bg-white p-3.5 rounded-xl shadow-sm border border-slate-200 text-center">
             <div class="p-2 bg-slate-50 rounded-lg border border-slate-100">
                 <div class="text-xs text-slate-500 font-bold mb-0.5">السكاشن المعروضة (Visible Sections)</div>
@@ -100,7 +106,8 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+        <!-- Main Schedule Table -->
+        <div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden mb-10">
             <div class="overflow-auto table-container w-full max-h-[75vh]" dir="ltr">
                 <table id="schedule-table" class="w-full text-left border-collapse min-w-[1200px]">
                     <thead>
@@ -114,6 +121,29 @@
                         </tr>
                     </thead>
                     <tbody id="schedule-tbody" class="en-text text-sm"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Course-TAs Matrix Section -->
+        <div id="matrix-section" class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden p-5">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-900">📊 مصفوفة توزيع المقررات على المعيدين (Course–TA Matrix)</h2>
+                    <p class="text-xs text-slate-500 font-medium mt-0.5">اضغط على أي رقم لفلترة الجدول العلوي، أو اضغط على اسم المعيد / المقرر لعرض جدوله الكامل</p>
+                </div>
+                <div id="matrix-controls" class="flex bg-slate-100 p-1 rounded-lg border border-slate-200">
+                    <button onclick="setMatrixMode('hours')" id="btn-mode-hours" class="px-3 py-1.5 rounded-md text-xs font-bold transition-colors bg-slate-800 text-white shadow-sm">الساعات (Hours)</button>
+                    <button onclick="setMatrixMode('sections')" id="btn-mode-sections" class="px-3 py-1.5 rounded-md text-xs font-bold transition-colors text-slate-600 hover:text-slate-900">السكاشن (Sections)</button>
+                    <button onclick="setMatrixMode('both')" id="btn-mode-both" class="px-3 py-1.5 rounded-md text-xs font-bold transition-colors text-slate-600 hover:text-slate-900">مفصل (Hrs + Sec)</button>
+                </div>
+            </div>
+
+            <div class="overflow-auto table-container w-full">
+                <table id="matrix-table" class="w-full text-center border-collapse text-xs">
+                    <thead id="matrix-thead"></thead>
+                    <tbody id="matrix-tbody"></tbody>
+                    <tfoot id="matrix-tfoot"></tfoot>
                 </table>
             </div>
         </div>
@@ -403,6 +433,8 @@
             'RMIT.203': ['bg-rose-600', 'border-rose-700', 'bg-rose-700/50', 'text-rose-200']
         };
 
+        let currentMatrixMode = 'hours'; // 'hours' | 'sections' | 'both'
+
         function buildTable() {
             const tbody = document.getElementById('schedule-tbody');
             let html = '';
@@ -449,6 +481,158 @@
                 html += `</tr>`;
             });
             tbody.innerHTML = html;
+        }
+
+        function setMatrixMode(mode) {
+            currentMatrixMode = mode;
+            ['hours', 'sections', 'both'].forEach(m => {
+                const btn = document.getElementById('btn-mode-' + m);
+                if (m === mode) {
+                    btn.className = "px-3 py-1.5 rounded-md text-xs font-bold transition-colors bg-slate-800 text-white shadow-sm";
+                } else {
+                    btn.className = "px-3 py-1.5 rounded-md text-xs font-bold transition-colors text-slate-600 hover:text-slate-900";
+                }
+            });
+            buildMatrix();
+        }
+
+        function selectFromMatrix(ta, course) {
+            document.getElementById('ta-filter').value = ta || "";
+            document.getElementById('course-filter').value = course || "";
+            document.getElementById('loc-filter').value = "";
+            filterSchedule();
+            document.getElementById('top-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function buildMatrix() {
+            const coursesSet = new Set();
+            const tasList = [];
+            document.querySelectorAll('#ta-filter option').forEach(opt => {
+                if (opt.value) tasList.push(opt.value);
+            });
+
+            SCHEDULE_DATA.forEach(dayObj => {
+                dayObj.periods.forEach(cards => {
+                    cards.forEach(card => {
+                        const baseCourse = card.c.split(' (')[0].trim();
+                        coursesSet.add(baseCourse);
+                        card.tas.forEach(ta => {
+                            if (!tasList.includes(ta)) tasList.push(ta);
+                        });
+                    });
+                });
+            });
+
+            const courses = Array.from(coursesSet).sort();
+            const stats = {};
+            tasList.forEach(ta => {
+                stats[ta] = { totalHours: 0, totalSecs: 0, days: new Set(), courses: {} };
+                courses.forEach(c => stats[ta].courses[c] = { hours: 0, secs: 0 });
+            });
+
+            const courseTotals = {};
+            courses.forEach(c => courseTotals[c] = { hours: 0, secs: 0 });
+
+            SCHEDULE_DATA.forEach(dayObj => {
+                dayObj.periods.forEach(cards => {
+                    cards.forEach(card => {
+                        const baseCourse = card.c.split(' (')[0].trim();
+                        const dur = card.t ? 1 : 2;
+                        card.tas.forEach(ta => {
+                            if (stats[ta]) {
+                                stats[ta].courses[baseCourse].hours += dur;
+                                stats[ta].courses[baseCourse].secs += 1;
+                                stats[ta].totalHours += dur;
+                                stats[ta].totalSecs += 1;
+                                stats[ta].days.add(dayObj.day);
+                                courseTotals[baseCourse].hours += dur;
+                                courseTotals[baseCourse].secs += 1;
+                            }
+                        });
+                    });
+                });
+            });
+
+            const activeTA = document.getElementById('ta-filter').value;
+            const activeCourse = document.getElementById('course-filter').value;
+
+            // Header
+            let theadHtml = `<tr class="bg-slate-800 text-white">
+                <th class="py-3 px-2 border border-slate-700 w-10">#</th>
+                <th class="py-3 px-3 border border-slate-700 text-right min-w-[160px] sticky right-0 z-10 bg-slate-900">اسم المعيد (Instructor)</th>`;
+            
+            courses.forEach(c => {
+                const [bg] = COLORS[c] || ['bg-slate-700'];
+                const isSelectedCourse = activeCourse === c ? 'ring-2 ring-yellow-400' : '';
+                theadHtml += `<th onclick="selectFromMatrix('', '${c}')" title="اضغط لفلترة ${c}" class="py-3 px-2 border border-slate-700 en-text cursor-pointer hover:brightness-110 transition-all ${bg} ${isSelectedCourse}">${c}</th>`;
+            });
+
+            theadHtml += `
+                <th class="py-3 px-2 border border-slate-700 bg-slate-900">إجمالي السكاشن</th>
+                <th class="py-3 px-2 border border-slate-700 bg-slate-900">إجمالي الساعات</th>
+                <th class="py-3 px-2 border border-slate-700 bg-slate-900">الأيام</th>
+            </tr>`;
+            document.getElementById('matrix-thead').innerHTML = theadHtml;
+
+            // Body
+            let tbodyHtml = '';
+            let grandHours = 0;
+            let grandSecs = 0;
+
+            tasList.forEach((ta, idx) => {
+                const st = stats[ta];
+                grandHours += st.totalHours;
+                grandSecs += st.totalSecs;
+                const isSelectedTA = activeTA === ta;
+                const rowCls = isSelectedTA ? 'bg-blue-50/90 font-bold' : (idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/60');
+
+                tbodyHtml += `<tr class="${rowCls} hover:bg-blue-50/50 transition-colors border-b border-slate-200">
+                    <td class="py-2.5 px-2 border border-slate-200 text-slate-400 font-bold en-text">${idx + 1}</td>
+                    <td onclick="selectFromMatrix('${ta}', '')" title="اضغط لعرض جدول ${ta}" class="py-2.5 px-3 border border-slate-200 text-right font-bold text-slate-800 cursor-pointer hover:text-blue-600 sticky right-0 z-10 ${isSelectedTA ? 'bg-blue-100' : 'bg-white'}">${ta}</td>`;
+
+                courses.forEach(c => {
+                    const cellData = st.courses[c];
+                    const isHighlighted = (activeTA === ta && activeCourse === c);
+                    if (cellData.hours === 0) {
+                        tbodyHtml += `<td class="py-2.5 px-2 border border-slate-200 text-slate-300 en-text">-</td>`;
+                    } else {
+                        let displayVal = '';
+                        if (currentMatrixMode === 'hours') displayVal = `${cellData.hours}h`;
+                        else if (currentMatrixMode === 'sections') displayVal = `${cellData.secs}`;
+                        else displayVal = `${cellData.hours}h <span class="text-[10px] text-slate-500">(${cellData.secs})</span>`;
+
+                        tbodyHtml += `<td onclick="selectFromMatrix('${ta}', '${c}')" title="${ta} - ${c}: ${cellData.hours} ساعة (${cellData.secs} سكشن)" class="py-2 px-1.5 border border-slate-200 en-text cursor-pointer hover:bg-blue-100 transition-colors ${isHighlighted ? 'bg-amber-100 ring-2 ring-amber-400' : 'bg-emerald-50/70'}">
+                            <span class="font-extrabold text-slate-800">${displayVal}</span>
+                        </td>`;
+                    }
+                });
+
+                const loadColor = st.totalHours === 0 ? 'text-rose-600 bg-rose-50' : 'text-emerald-700 bg-emerald-50';
+                tbodyHtml += `
+                    <td class="py-2.5 px-2 border border-slate-200 font-bold text-blue-700 bg-blue-50/40 en-text">${st.totalSecs}</td>
+                    <td class="py-2.5 px-2 border border-slate-200 font-extrabold ${loadColor} en-text">${st.totalHours} Hrs</td>
+                    <td class="py-2.5 px-2 border border-slate-200 font-bold text-violet-700 en-text">${st.days.size}</td>
+                </tr>`;
+            });
+            document.getElementById('matrix-tbody').innerHTML = tbodyHtml;
+
+            // Footer Totals
+            let tfootHtml = `<tr class="bg-slate-800 text-white font-bold en-text">
+                <td colspan="2" class="py-3 px-3 border border-slate-700 text-right font-[Cairo]">الإجمالي الكلي للمقرر (Course Totals)</td>`;
+            
+            courses.forEach(c => {
+                const ct = courseTotals[c];
+                let displayTot = currentMatrixMode === 'sections' ? `${ct.secs} Sec` : `${ct.hours}h`;
+                if (currentMatrixMode === 'both') displayTot = `${ct.hours}h (${ct.secs})`;
+                tfootHtml += `<td class="py-3 px-1.5 border border-slate-700 text-amber-300">${displayTot}</td>`;
+            });
+
+            tfootHtml += `
+                <td class="py-3 px-2 border border-slate-700 text-blue-300">${grandSecs}</td>
+                <td class="py-3 px-2 border border-slate-700 text-emerald-300">${grandHours} Hrs</td>
+                <td class="py-3 px-2 border border-slate-700">-</td>
+            </tr>`;
+            document.getElementById('matrix-tfoot').innerHTML = tfootHtml;
         }
 
         function initDynamicFilters() {
@@ -537,6 +721,8 @@
                 container.style.minHeight = visibleCards.length === 0 ? '50px' : (170 + (visibleCards.length - 1) * 14) + 'px';
                 applyStackStyles(visibleCards);
             });
+
+            buildMatrix();
         }
 
         function applyStackStyles(visibleCards) {
